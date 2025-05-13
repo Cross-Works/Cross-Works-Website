@@ -1,0 +1,39 @@
+{
+  "kind": "collectionType",
+  "collectionName": "copy_blocks",
+  "info": {
+    "singularName": "copy-block",
+    "pluralName": "copy-blocks",
+    "displayName": "Text-Image-Blocks",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "blocks"
+    },
+    "media": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "categories": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::category.category",
+      "mappedBy": "copy_block"
+    }
+  }
+}
