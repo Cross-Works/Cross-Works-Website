@@ -1,0 +1,23 @@
+{
+  "kind": "collectionType",
+  "collectionName": "project_awards",
+  "info": {
+    "singularName": "project-award",
+    "pluralName": "project-awards",
+    "displayName": "Project-Awards"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "blocks"
+    },
+    "award": {
+      "type": "string"
+    }
+  }
+}

@@ -19,19 +19,13 @@
     "slug": {
       "type": "uid"
     },
-    "articles": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::article.article",
-      "mappedBy": "categories"
-    },
     "description": {
       "type": "text"
     },
-    "copy_block": {
+    "text_media_blocks": {
       "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::copy-block.copy-block",
+      "relation": "manyToMany",
+      "target": "api::text-media-block.text-media-block",
       "inversedBy": "categories"
     }
   }

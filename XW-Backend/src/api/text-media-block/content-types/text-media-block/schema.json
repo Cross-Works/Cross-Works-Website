@@ -1,0 +1,39 @@
+{
+  "kind": "collectionType",
+  "collectionName": "text_media_blocks",
+  "info": {
+    "singularName": "text-media-block",
+    "pluralName": "text-media-blocks",
+    "displayName": "Text-Media-Blocks",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "Title": {
+      "type": "string",
+      "required": true
+    },
+    "Description": {
+      "type": "blocks"
+    },
+    "categories": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::category.category",
+      "mappedBy": "text_media_blocks"
+    },
+    "Media": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    }
+  }
+}
