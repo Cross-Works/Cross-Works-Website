@@ -27,6 +27,12 @@
       "relation": "manyToMany",
       "target": "api::text-media-block.text-media-block",
       "inversedBy": "categories"
+    },
+    "cards": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::card.card",
+      "inversedBy": "categories"
     }
   }
 }

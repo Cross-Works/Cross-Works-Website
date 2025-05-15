@@ -1,46 +1,13 @@
 import { useParams } from 'react-router-dom';
-import useFetch from '../../hooks/useFetch';
 import './singlenews.css';
+import { useSingleNews } from '../../utils';
 
-interface MediaFile {
-    id: number;
-    url: string;
-    alternativeText: string | null;
-}
-
-interface SingleNewsEntry {
-    id: number;
-    title: string;
-    slug: string;
-    publishedDate: string;
-    newsShortText: { type: string; children: { text: string }[] }[];
-    newsContent: { type: string; children: { text: string }[] }[];
-    featuredImage: MediaFile;
-    featuredImage2: MediaFile;
-    shareLink: string | null;
-    createdAt: string;
-    updatedAt: string;
-    publishedAt: string;
-}
-
-interface SingleNewsResponse {
-    data: SingleNewsEntry[];
-    meta: { pagination: { page: number; pageSize: number; pageCount: number; total: number } };
-}
-
-export default function SingleNews() {
+const SingleNews: React.FC = () => {
     const { docId } = useParams<{ docId: string }>()
-    const { data: res, loading, error } = useFetch<SingleNewsResponse>(
-        `http://localhost:1337/api/news?filters[documentId][$eq]=${docId}&populate=*`
-    );
-
+    const { entry, loading, error } = useSingleNews(docId);
     if (loading) return <p>Loading…</p>;
     if (error) return <p style={{ color: 'red' }}>{error.message}</p>;
-
-    // pull out the one entry
-    const entry = res?.data[0];
     if (!entry) return <p>No content found.</p>;
-
     return (
         <section className="single-news-page">
             <aside className="news-sidebar">
@@ -98,4 +65,6 @@ export default function SingleNews() {
             </article>
         </section>
     );
-}
+};
+
+export default SingleNews;

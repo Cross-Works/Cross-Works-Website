@@ -38,6 +38,12 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::single-news.single-news"
+    },
+    "categories": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::category.category",
+      "mappedBy": "cards"
     }
   }
 }

@@ -1,40 +1,14 @@
-import useFetch from '../../hooks/useFetch'
+import { useContent } from '../../context/Content'
 
-interface StrapiMeta {
-    pagination: { page: number; pageSize: number; pageCount: number; total: number }
-}
-interface APIJSON<T> {
-    data: T[]
-    meta: StrapiMeta
-}
-
-// shape of each block in JSON
-type Block = {
-    id: number
-    Title: string
-    Description: any[]
-    Media: Array<{
-        id: number
-        url: string
-        alternativeText: string | null
-    }>
-}
-
-const Blocks: React.FC = () => {
-    const {
-        data: response,
-        loading,
-        error
-    } = useFetch<APIJSON<Block>>(
-        'http://localhost:1337/api/text-media-blocks?populate=Media'
-    )
+const Blocks: React.FC<{ categorySlug: string }> = ({ categorySlug }) => {
+    const { blocks, loading, error } = useContent();
+    const items = blocks[categorySlug] || [];
 
     if (loading) return <p>Loading…</p>
     if (error) return <p style={{ color: 'red' }}>{error.message}</p>
-    const blocks = response?.data ?? []
     return (
         <section className="blocks">
-            {blocks.map((block, idx) => {
+            {items.map((block, idx) => {
                 const isEven = idx % 2 === 1
 
                 return (
@@ -64,7 +38,6 @@ const Blocks: React.FC = () => {
             })}
         </section>
     );
-
 }
 
-export default Blocks
+export default Blocks;
