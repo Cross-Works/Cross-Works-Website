@@ -1,12 +1,12 @@
 <template>
-  <div class="panel-tech">
-    <h1>Technology Solutions</h1>
-    <div v-if="loading" class="loading">Loading technology information...</div>
-    <div v-else-if="error" class="error">Error loading technology data</div>
-    <div v-else class="tech-grid">
+  <div class="panel-cities">
+    <h1>Our Cities</h1>
+    <div v-if="loading" class="loading">Loading city information...</div>
+    <div v-else-if="error" class="error">Error loading cities data</div>
+    <div v-else class="cities-grid">
       <CardGrid
-        title="Our Technologies"
-        :cards="tech"
+        title="Featured Cities"
+        :cards="cities"
         :show-description="true"
       />
     </div>
@@ -15,31 +15,32 @@
 
 <script setup>
 import { computed } from 'vue'
-import CardGrid from './Cards/CardGrid.vue'
-import { useContent, provideContent } from '../composables/useContent'
+import CardGrid from '../Cards/CardGrid.vue'
+import { useContent, provideContent } from '../../composables/useContent'
 
 // Setup content provider
 const content = provideContent()
 
-// Get tech items from content
-const tech = computed(() => content.cards.value?.tech || [])
+// Get cities from content
+const cities = computed(() => content.cards.value?.cities || [])
 const loading = computed(() => content.loading.value)
 const error = computed(() => content.error.value)
 </script>
 
 <style lang="scss" scoped>
-@import '../assets/scss/variables';
+@use '../../assets/scss/variables' as *;
 
-.panel-tech {
+.panel-cities {
   max-width: 1200px;
   margin: 0 auto;
   padding: $spacing-xl;
+  background-color: $xw-teal-medium;
   
   h1 {
     margin-bottom: $spacing-xl;
     text-align: center;
     font-weight: bold;
-    color: $secondary-color;
+    color: $xw-white;
     
     &:after {
       content: '';
@@ -51,7 +52,7 @@ const error = computed(() => content.error.value)
     }
   }
   
-  .tech-grid {
+  .cities-grid {
     margin-top: $spacing-lg;
   }
   

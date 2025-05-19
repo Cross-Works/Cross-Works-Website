@@ -1,15 +1,8 @@
 <template>
   <div class="homepage">
-    <!-- Backdrop overlay only visible when panels are open -->
-    <div class="backdrop" :class="{ 'active': activePanelSide !== null }" @click="closePanels"></div>
-    
-
-
-    <!-- Main content -->
     <div class="page-wrapper">
       <div class="main-content">
     
-
         <!-- Hero section -->
         <section class="hero">
           <div class="logo">
@@ -20,9 +13,9 @@
           <div class="hero-content">
             <h2>Award-winning</h2>
             <div class="expertise">
-              <span class="design" @click="openPanel('left')">design</span>
+              <span class="design">design</span>
               <span>&</span>
-              <span class="technology" @click="openPanel('right')">technology</span>
+              <span class="technology">technology</span>
             </div>
             <p>firm, specialising in cities</p>
             <a href="#about-us" class="btn-primary">About us</a>
@@ -96,40 +89,20 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+import useTheme from '../composables/useTheme'
+import PlaceholderImg from '../components/Placeholders/PlaceholderImg.vue'
 
-// State for side panels
-const activePanelSide = ref(null)
+const { setTheme } = useTheme()
 
-// Add event listener for escape key
-const handleEscKey = (event) => {
-  if (event.key === 'Escape') {
-    closePanels()
-  }
-}
 
-// Panel control functions
-function openPanel(side) {
-  console.log(`Opening ${side} panel`)
-  activePanelSide.value = side
-  document.body.classList.add('panel-open')
-}
-
-function closePanels() {
-  console.log('Closing panels')
-  activePanelSide.value = null
-  document.body.classList.remove('panel-open')
-}
 
 // Lifecycle hooks for event handling
 onMounted(() => {
-  document.addEventListener('keydown', handleEscKey)
-  
-  // Test console log
-  console.log('HomePage component mounted')
+  setTheme('xw-white')
 })
 
 onBeforeUnmount(() => {
-  document.removeEventListener('keydown', handleEscKey)
+ 
 })
 </script>
 
@@ -171,9 +144,6 @@ onBeforeUnmount(() => {
   &:hover {
     background-color: #d5d5d5;
   }
-
-
- 
 }
 
 // Main content with proper padding
@@ -254,7 +224,7 @@ onBeforeUnmount(() => {
     }
     
     p {
-      font-size: 24px;
+      font-size: 20px;
       margin-bottom: $spacing-lg;
       color: $xw-black;
     }

@@ -11,12 +11,17 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import CardGrid from '../components/Cards/CardGrid.vue'
 import { useContent, provideContent } from '../composables/useContent'
+import useTheme from '../composables/useTheme'
 
-// Setup content provider
-const content = provideContent()
+const { setTheme } = useTheme()
+
+onMounted(() => {
+  setTheme('xw-grey')
+})
+
 
 // Get news cards from content
 const news = computed(() => content.cards.value?.news || [])

@@ -10,6 +10,9 @@ This is the Cross-Works Website built with Vue.js, connecting to a Strapi backen
 - Sass for advanced styling
 - Vite for building and development
 
+## TODO
+- add ts
+
 ## Project Structure
 
 - `src/components/` - Reusable UI components

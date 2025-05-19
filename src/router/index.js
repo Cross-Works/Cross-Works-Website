@@ -9,6 +9,16 @@ const routes = [
     component: defineAsyncComponent(() => import('../views/HomePage.vue'))
   },
   {
+    path: '/about',
+    name: 'About',
+    component: defineAsyncComponent(() => import('../views/About.vue'))
+  },
+  {
+    path: '/contact',
+    name: 'Contact',
+    component: defineAsyncComponent(() => import('../views/Contact.vue'))
+  },
+  {
     path: '/news',
     name: 'News',
     component: defineAsyncComponent(() => import('../views/NewsListing.vue'))
@@ -21,12 +31,12 @@ const routes = [
   {
     path: '/cities',
     name: 'Cities',
-    component: defineAsyncComponent(() => import('../components/PanelCities.vue'))
+    component: defineAsyncComponent(() => import('../components/Layout/PanelCities.vue'))
   },
   {
     path: '/technology',
     name: 'Tech',
-    component: defineAsyncComponent(() => import('../components/PanelTech.vue'))
+    component: defineAsyncComponent(() => import('../components/Layout/PanelTech.vue'))
   },
   {
     path: '/:pathMatch(.*)*',

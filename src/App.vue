@@ -1,7 +1,15 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import PanelCities from './components/PanelCities.vue'
-import PanelTech from './components/PanelTech.vue'
+import PanelCities from './components/Layout/PanelCities.vue'
+import PanelTech from './components/Layout/PanelTech.vue'
+import { currentTheme } from './store/themeState'
+import useTheme from './composables/useTheme'
+import Navigation from './components/Navigation.vue'
+import Header from './components/Layout/Header.vue'
+import Footer from './components/Layout/Footer.vue'
+
+// Get theme utilities
+const { setTheme } = useTheme()
 
 // State for side panels
 const activePanelSide = ref(null)
@@ -15,13 +23,13 @@ const handleEscKey = (event) => {
 
 // Panel control functions
 function openPanel(side) {
-  console.log(`Opening ${side} panel`)
+
   activePanelSide.value = side
   document.body.classList.add('panel-open')
 }
 
 function closePanels() {
-  console.log('Closing panels')
+
   activePanelSide.value = null
   document.body.classList.remove('panel-open')
 }
@@ -37,8 +45,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="app-container">
-
+  <div class="app-container" :class="currentTheme">
     <div class="backdrop" :class="{ 'active': activePanelSide !== null }" @click="closePanels"></div>
     
     <div class="side-panel left" :class="{ 
@@ -52,7 +59,6 @@ onBeforeUnmount(() => {
       
       <div class="panel-content" @click.stop>
         <PanelCities />
-        <button class="close-btn" @click.stop="closePanels">×</button>
       </div>
     </div>
 
@@ -67,28 +73,15 @@ onBeforeUnmount(() => {
       
       <div class="panel-content" @click.stop>
         <PanelTech />
-        <button class="close-btn" @click.stop="closePanels">×</button>
       </div>
     </div>
 
     <!-- Main content -->
-    <div class="page-wrapper" :class="{ 
-      'push-right': activePanelSide === 'left',
-      'push-left': activePanelSide === 'right'
-    }">
+    <div class="page-wrapper">
       <div class="main-content">
         <!-- Top navigation -->
-        <header class="site-header">
-          <nav>
-            <ul>
-              <li><router-link to="/about">About</router-link></li>
-              <li><router-link to="/news">News</router-link></li>
-              <li><router-link to="/contact">Contact</router-link></li>
-            </ul>
-          </nav>
-        </header>
+        <Header/>
         
-        <!-- Page content (router view) -->
         <main class="page-content">
           <router-view v-slot="{ Component }">
             <Suspense>
@@ -100,29 +93,8 @@ onBeforeUnmount(() => {
           </router-view>
         </main>
         
-        <!-- Footer -->
-        <footer>
-          <div class="footer-section">
-            <h4>Find us</h4>
-            <p>1 Bonny Street <br/>
-              Camden, London, NW1 9PE</p>
-            <p>View on map</p>
-          </div>
-          <div class="footer-section">
-            <h4>Contact us</h4>
-            <p>+44 (0) 20 7916 1827</p>
-            <p>Mon-Fri 9 am-5:30 pm</p>
-            <p>london@cross-works.co.uk</p>
-          </div>
-          <div class="footer-section">
-            <h4>Follow us</h4>
-            <div class="social-icons">
-              <a href="#" class="social-icon">LinkedIn</a>
-              <a href="#" class="social-icon">Twitter</a>
-              <a href="#" class="social-icon">Instagram</a>
-            </div>
-          </div>
-        </footer>
+        <Footer />
+
       </div>
     </div>
   </div>
@@ -130,28 +102,25 @@ onBeforeUnmount(() => {
 
 <style lang="scss">
 @import './assets/scss/variables';
+@import './assets/scss/_themes.scss';
 
 .app-container {
   position: relative;
   overflow-x: hidden;
   min-height: 100vh;
   width: 100%;
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
+  transition: background-color 0.3s, color 0.3s;
 }
 
-
+// Page wrapper for push effect
 .page-wrapper {
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  
-  &.push-right {
-    transform: translateX(5%);
-  }
-  
-  &.push-left {
-    transform: translateX(-5%);
-  }
+
 }
 
 // Main content container
@@ -177,7 +146,7 @@ onBeforeUnmount(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  //background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   z-index: 90;
   opacity: 0;
   visibility: hidden;
@@ -195,9 +164,9 @@ onBeforeUnmount(() => {
   top: 0;
   height: 100vh;
   width: 95%;
-  background-color: $xw-white;
+  background-color: var(--theme-bg);
   z-index: 100;
-  box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 25px var(--theme-shadow);
   cursor: pointer;
   
   &.no-hover {
@@ -221,12 +190,13 @@ onBeforeUnmount(() => {
     height: 100%;
     z-index: -1;
     pointer-events: all; 
+    background-color: rgba($color: pink, $alpha: .2);
   }
   
   &.left {
     left: 0;
     transform: translateX(-95%);
-    border-right: 8px solid $xw-teal-medium;
+    border-right: 8px solid var(--theme-panel-left);
     transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     
     .panel-tab {
@@ -237,8 +207,8 @@ onBeforeUnmount(() => {
       writing-mode: vertical-lr;
       text-orientation: mixed;
       padding: 30px 12px;
-      background: linear-gradient(to right, darken($xw-teal-medium, 5%), $xw-teal-medium);
-      color: $xw-white;
+      background: var(--theme-panel-left);
+      color: var(--theme-secondary);
       font-weight: 600;
       border-top-right-radius: 8px;
       border-bottom-right-radius: 8px;
@@ -254,7 +224,7 @@ onBeforeUnmount(() => {
       
       .panel-tab {
         padding-right: 16px;
-        box-shadow: 4px 0 12px rgba(0, 0, 0, 0.2);
+        box-shadow: 4px 0 12px var(--theme-shadow);
       }
     }
     
@@ -268,17 +238,18 @@ onBeforeUnmount(() => {
     content: '';
     position: absolute;
     top: 0;
-    left: -20vw;
+    left: -20vw; 
     width: 20vw;
     height: 100%;
     z-index: -1;
     pointer-events: all;
+    background-color: rgba($color: pink, $alpha: .2);
   }
   
   &.right {
     right: 0;
     transform: translateX(95%);
-    border-left: 8px solid $xw-yellow;
+    border-left: 8px solid var(--theme-panel-right);
     transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     
     .panel-tab {
@@ -288,8 +259,8 @@ onBeforeUnmount(() => {
       transform: translateY(-50%);
       writing-mode: vertical-lr;
       padding: 30px 12px;
-      background: linear-gradient(to left, darken($xw-yellow, 5%), $xw-yellow);
-      color: $xw-black;
+      background: var(--theme-panel-right);
+      color: var(--theme-text);
       font-weight: 600;
       border-top-left-radius: 8px;
       border-bottom-left-radius: 8px;
@@ -301,7 +272,7 @@ onBeforeUnmount(() => {
       
       .panel-tab {
         padding-left: 16px;
-        box-shadow: -4px 0 12px rgba(0, 0, 0, 0.2);
+        box-shadow: -4px 0 12px var(--theme-shadow);
       }
     }
     
@@ -320,7 +291,7 @@ onBeforeUnmount(() => {
     justify-content: center;
     font-size: 18px;
     transition: all 0.3s;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 15px var(--theme-shadow);
     z-index: 101;
     text-transform: uppercase;
   }
@@ -334,7 +305,7 @@ onBeforeUnmount(() => {
     
     h2 {
       margin-bottom: $spacing-xl;
-      color: $xw-black;
+      color: var(--theme-header);
       font-size: 36px;
       font-weight: 300;
     }
@@ -347,12 +318,12 @@ onBeforeUnmount(() => {
       border: none;
       font-size: 32px;
       cursor: pointer;
-      color: $xw-black;
+      color: var(--theme-text);
       z-index: 101;
       transition: transform 0.2s ease, color 0.2s ease;
       
       &:hover {
-        color: $xw-teal-dark;
+        color: var(--theme-accent);
         transform: scale(1.1);
       }
     }
@@ -367,7 +338,7 @@ onBeforeUnmount(() => {
   .panel-section {
     h3 {
       margin-bottom: $spacing-lg;
-      color: $xw-black;
+      color: var(--theme-header);
       font-size: 20px;
       font-weight: 500;
     }
@@ -378,78 +349,21 @@ onBeforeUnmount(() => {
       gap: $spacing-md;
       
       a {
-        color: $xw-teal-dark;
+        color: var(--theme-link);
         font-size: 16px;
         transition: color 0.2s;
         
         &:hover {
-          color: $xw-teal-light;
+          color: var(--theme-link-hover);
         }
       }
     }
   }
 }
 
-// Header
-.site-header {
-  padding: $spacing-lg 0;
-  
-  nav ul {
-    display: flex;
-    justify-content: center;
-    list-style: none;
-    gap: $spacing-xl;
-    
-    a {
-      color: $xw-teal-dark;
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.2s;
-      
-      &:hover {
-        color: $xw-teal-light;
-      }
-    }
-  }
-}
 
-// Footer
-footer {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: $spacing-xl;
-  padding: $spacing-xxl 0;
-  border-top: 1px solid $xw-grey;
-  margin-top: auto;
-  
-  .footer-section {
-    h4 {
-      color: $xw-teal-dark;
-      margin-bottom: $spacing-md;
-      font-size: 16px;
-    }
-    
-    p {
-      color: $xw-black;
-      margin-bottom: $spacing-sm;
-      font-size: 14px;
-    }
-    
-    .social-icons {
-      display: flex;
-      gap: $spacing-md;
-      
-      .social-icon {
-        color: $xw-teal-medium;
-        transition: color 0.2s;
-        
-        &:hover {
-          color: $xw-teal-dark;
-        }
-      }
-    }
-  }
-}
+
+
 
 // Loading state
 .loading {
@@ -458,7 +372,7 @@ footer {
   align-items: center;
   height: 60vh;
   font-size: 1.5rem;
-  color: $xw-teal-medium;
+  color: var(--theme-accent);
 }
 
 // Panel open state for body

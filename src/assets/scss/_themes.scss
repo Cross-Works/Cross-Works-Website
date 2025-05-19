@@ -1,0 +1,81 @@
+// Cross Works theme system
+// This file contains theme variables for the 4 main color themes
+
+// Import variables to use the color definitions
+@import './variables';
+
+// Theme Variables
+:root {
+  // Default theme variables (xw-white theme)
+  --theme-bg: #{$xw-white};
+  --theme-text: #{$xw-black};
+  --theme-panel-left: #{$xw-teal-medium};
+  --theme-panel-right: #{$xw-yellow};
+  --theme-accent: #{$xw-teal-dark};
+  --theme-secondary: #{$xw-grey};
+  --theme-link: #{$xw-teal-dark};
+  --theme-link-hover: #{$xw-teal-light};
+  --theme-header: #{$xw-black};
+  --theme-border: #{$xw-grey-light};
+  --theme-shadow: rgba(0, 0, 0, 0.1);
+}
+
+// White Theme (Default)
+.theme-xw-white {
+  --theme-bg: #{$xw-white};
+  --theme-text: #{$xw-black};
+  --theme-panel-left: #{$xw-teal-medium};
+  --theme-panel-right: #{$xw-yellow};
+  --theme-accent: #{$xw-teal-dark};
+  --theme-secondary: #{$xw-grey};
+  --theme-link: #{$xw-teal-dark};
+  --theme-link-hover: #{$xw-teal-light};
+  --theme-header: #{$xw-black};
+  --theme-border: #{$xw-grey-light};
+  --theme-shadow: rgba(0, 0, 0, 0.1);
+}
+
+// Teal Theme
+.theme-xw-teal {
+  --theme-bg: #{$xw-teal};
+  --theme-text: #{$xw-white};
+  --theme-panel-left: #{$xw-teal-medium};
+  --theme-panel-right: #{$xw-yellow};
+  --theme-accent: #{$xw-teal-light};
+  --theme-secondary: #{$xw-teal-light};
+  --theme-link: #{$xw-white};
+  --theme-link-hover: #{$xw-yellow};
+  --theme-header: #{$xw-white};
+  --theme-border: #{$xw-teal-medium};
+  --theme-shadow: rgba(0, 0, 0, 0.2);
+}
+
+// Grey Theme
+.theme-xw-grey {
+  --theme-bg: #{$xw-grey};
+  --theme-text: #{$xw-black};
+  --theme-panel-left: #{$xw-teal-dark};
+  --theme-panel-right: #{$xw-yellow-dark};
+  --theme-accent: #{$xw-teal-dark};
+  --theme-secondary: #{$xw-white};
+  --theme-link: #{$xw-teal-dark};
+  --theme-link-hover: #{$xw-teal-light};
+  --theme-header: #{$xw-black};
+  --theme-border: #{$xw-grey-light};
+  --theme-shadow: rgba(0, 0, 0, 0.15);
+}
+
+// Yellow Theme
+.theme-xw-yellow {
+  --theme-bg: #{$xw-yellow};
+  --theme-text: #{$xw-black};
+  --theme-panel-left: #{$xw-teal-dark};
+  --theme-panel-right: #{$xw-yellow-dark};
+  --theme-accent: #{$xw-teal-dark};
+  --theme-secondary: #{$xw-white};
+  --theme-link: #{$xw-teal-dark};
+  --theme-link-hover: #{$xw-black};
+  --theme-header: #{$xw-black};
+  --theme-border: #{$xw-yellow-dark};
+  --theme-shadow: rgba(0, 0, 0, 0.1);
+} 
