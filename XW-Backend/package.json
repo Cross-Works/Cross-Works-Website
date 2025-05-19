@@ -2,7 +2,7 @@
   "name": "xw-backend",
   "version": "0.1.0",
   "private": true,
-  "description": "A Strapi application",
+  "description": "XW Strapi backend",
   "scripts": {
     "build": "strapi build",
     "console": "strapi console",

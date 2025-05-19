@@ -1,0 +1,60 @@
+// Brand Colors
+$xw-teal-dark: #0A7472;
+$xw-teal-medium: #23908B;
+$xw-teal-light: #45B5AA;
+$xw-yellow:#F5DA4F;
+$xw-grey:#D3D3D3;
+$xw-white:#FFFFFF;
+$xw-black:#101010;
+
+
+
+$primary-color: #42b883;
+$secondary-color: #35495e;
+$accent-color: #ff7e67;
+
+// Neutral Colors
+$dark: #333;
+$medium: #666;
+$light: #f5f5f5;
+$white: #ffffff;
+
+// Feedback Colors
+$success: #4caf50;
+$warning: #ff9800;
+$error: #e74c3c;
+$info: #2196f3;
+
+
+@font-face {
+    font-family: 'DM Sans';
+    font-style: normal; 
+    src: url(https://fonts.google.com/css2?family=DM+Sans:wght@400&display=swap) format('truetype');
+}
+
+// Typography
+$font-family-base: 'DM Sans', 'Avenir Next LT Pro', 'Avenir', Arial, sans-serif;
+
+
+
+$font-size-base: 16px;
+$line-height-base: 1.5;
+
+// Spacing
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-xxl: 48px;
+
+// Breakpoints
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+
+// Border
+$border-radius: 4px;
+$border-width: 1px;
+$border-color: #eee; 
