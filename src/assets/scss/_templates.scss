@@ -1,0 +1,17 @@
+@use './variables' as *;
+@use './container' as *;
+
+
+
+%template-page{
+    position: relative;
+    overflow-x: hidden;
+    min-height: 100vh;
+    width: 100%;
+}
+
+
+%template-container{
+    @extend %container;
+    @extend %container-mark;
+}

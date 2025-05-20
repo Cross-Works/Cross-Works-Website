@@ -60,6 +60,7 @@
         <div class="mobile-menu" :class="{ 'active': menuOpen }">
             <nav>
                 <ul>
+                    <li><router-link to="/" @click="$emit('toggleMenu')">Home</router-link></li>
                     <li><router-link to="/about" @click="$emit('toggleMenu')">About</router-link></li>
                     <li><router-link to="/news" @click="$emit('toggleMenu')">News</router-link></li>
                     <li><router-link to="/contact" @click="$emit('toggleMenu')">Contact</router-link></li>

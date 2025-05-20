@@ -1,310 +1,194 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import PanelCities from './components/Layout/PanelCities.vue'
 import PanelTech from './components/Layout/PanelTech.vue'
 import { currentTheme } from './store/themeState'
-import useTheme from './composables/useTheme'
-import Navigation from './components/Navigation.vue'
 import NavigationMobile from './components/NavigationMobile.vue'
 import Header from './components/Layout/Header.vue'
 import Footer from './components/Layout/Footer.vue'
 
-// Get theme utilities
-const { setTheme } = useTheme()
+/**
+ * Shared constants
+ */
+const TAB_WIDTH = 80
 
-// State for side panels and mobile menu
-const activePanelSide = ref(null)
-const isDragging = ref(false)
+/**
+ * Reactive state
+ */
+const activePanelSide = ref<null | 'left' | 'right'>(null)
+const dragSide = ref<null | 'left' | 'right'>(null)
+const isDragging = computed(() => dragSide.value !== null)
 const startX = ref(0)
-const PANEL_WIDTH = 80 // Width in pixels of visible panel when closed
 const menuOpen = ref(false)
 const isMobile = ref(false)
-
-// Mouse position tracking for panel hover effect
-const mouseX = ref(null)
+const mouseX = ref<number | null>(null)
 const windowWidth = ref(window.innerWidth)
 
-// Check if device is mobile
+/**
+ * Helpers
+ */
+const getClientX = (e: MouseEvent | TouchEvent) =>
+  'clientX' in e ? e.clientX : e.touches?.[0].clientX ?? 0
+
 const checkMobile = () => {
   isMobile.value = window.innerWidth < 768
   windowWidth.value = window.innerWidth
 }
 
-// Track window width for calculations
-const handleResize = () => {
-  windowWidth.value = window.innerWidth
-  checkMobile()
-  
-  // Close panels when switching to mobile view if they're open
-  if (isMobile.value && activePanelSide.value !== null) {
-    closePanels()
+const throttleRAF = (fn: (...args: any[]) => void) => {
+  let id = 0
+  return (...args: any[]) => {
+    if (id) cancelAnimationFrame(id)
+    id = requestAnimationFrame(() => fn(...args))
   }
 }
 
-// Left panel should preview if mouse is in left 20%
-const showLeftPreview = () => {
-  if (isDragging.value || activePanelSide.value !== null || isMobile.value) return false
-  return mouseX.value !== null && mouseX.value < windowWidth.value * 0.2
+/**
+ * Computed preview triggers
+ */
+const showLeftPreview = () =>
+  !isDragging.value &&
+  !activePanelSide.value &&
+  !isMobile.value &&
+  mouseX.value !== null &&
+  mouseX.value < windowWidth.value * 0.2
+
+const showRightPreview = () =>
+  !isDragging.value &&
+  !activePanelSide.value &&
+  !isMobile.value &&
+  mouseX.value !== null &&
+  mouseX.value > windowWidth.value * 0.8
+
+/**
+ * Core actions
+ */
+const openPanel = (side: 'left' | 'right') => {
+  activePanelSide.value = side
+  menuOpen.value = false
+  document.body.classList.add('panel-open')
 }
 
-// Right panel should preview if mouse is in right 20%
-const showRightPreview = () => {
-  if (isDragging.value || activePanelSide.value !== null || isMobile.value) return false
-  return mouseX.value !== null && mouseX.value > windowWidth.value * 0.8
+const closePanels = () => {
+  activePanelSide.value = null
+  document.body.classList.remove('panel-open')
 }
 
-// Mouse move handler for the entire viewport
-const handleMouseMove = (e) => {
-  if (!isDragging.value) {
-    mouseX.value = e.clientX
-  }
-}
-
-// Mouse leave handler for the viewport
-const handleMouseLeave = () => {
-  mouseX.value = null
-}
-
-// Toggle mobile menu
 const toggleMenu = () => {
-  if (activePanelSide.value === null) {
-    menuOpen.value = !menuOpen.value
-  }
+  if (!activePanelSide.value) menuOpen.value = !menuOpen.value
 }
 
 const closeMenu = () => {
   menuOpen.value = false
 }
 
-// Handle backdrop click
-const handleBackdropClick = () => {
-  if (menuOpen.value) {
-    closeMenu()
-  } else {
-    closePanels()
-  }
+/**
+ * Pointer‑drag lifecycle
+ */
+const handlePointerStart = (e: PointerEvent | MouseEvent | TouchEvent, side: 'left' | 'right') => {
+  if (menuOpen.value) closeMenu()
+  if (activePanelSide.value && activePanelSide.value !== side) return
+  dragSide.value = side
+  startX.value = getClientX(e)
+  const panel = document.querySelector<HTMLElement>(`.side-panel.${side}`)
+  panel?.classList.add('dragging')
+  panel && (panel.dataset.initialState = activePanelSide.value === side ? 'open' : 'closed')
+
+  const move = (ev: any) => handlePointerMove(ev)
+  const end = (ev: any) => handlePointerEnd(ev, move, end)
+
+  document.addEventListener(pointerMoveEvent, move)
+  document.addEventListener(pointerEndEvent, end)
+  document.addEventListener(pointerCancelEvent, end)
+
+  e.preventDefault?.()
 }
 
-// Panel control functions
-function openPanel(side) {
-  activePanelSide.value = side
-  menuOpen.value = false
-  document.body.classList.add('panel-open')
-}
-
-function closePanels() {
-  activePanelSide.value = null
-  document.body.classList.remove('panel-open')
-}
-
-// Add event listener for escape key
-const handleEscKey = (event) => {
-  if (event.key === 'Escape') {
-    if (menuOpen.value) {
-      closeMenu()
-    } else {
-      closePanels()
-    }
-  }
-}
-
-// Pointer start handler - works for both mouse and touch
-const handlePointerStart = (e, side) => {
-  // Prevent menu from opening when starting panel drag
-  if (menuOpen.value) {
-    closeMenu()
-  }
-
-  // Allow dragging even when panel is open (to close it)
-  // We'll track the initial state to know if we're opening or closing
-  const isOpening = activePanelSide.value === null
-  const isDragToClose = activePanelSide.value === side
-  
-  // Only allow dragging the active panel or when no panel is active
-  if (activePanelSide.value !== null && activePanelSide.value !== side) return
-  
-  isDragging.value = side
-  
-  // Safely access clientX for both mouse and touch events
-  startX.value = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0)
-  
-  // Add dragging class immediately to disable transitions
-  const panel = document.querySelector(`.side-panel.${side}`)
-  if (panel) {
-    panel.classList.add('dragging')
-    
-    // Store initial position on the panel element
-    panel.dataset.initialState = isDragToClose ? 'open' : 'closed'
-  }
-  
-  // Use the appropriate event listeners based on device capability
-  if (window.PointerEvent) {
-    document.addEventListener('pointermove', handlePointerMove)
-    document.addEventListener('pointerup', handlePointerEnd)
-    document.addEventListener('pointercancel', handlePointerEnd)
-  } else {
-    // Fallback for browsers that don't support pointer events
-    document.addEventListener('mousemove', handlePointerMove)
-    document.addEventListener('touchmove', handlePointerMove)
-    document.addEventListener('mouseup', handlePointerEnd)
-    document.addEventListener('touchend', handlePointerEnd)
-    document.addEventListener('touchcancel', handlePointerEnd)
-  }
-  
-  // Prevent default to stop text selection
-  if (e.preventDefault) {
-    e.preventDefault()
-  }
-}
-
-// Pointer move handler
-const handlePointerMove = (e) => {
-  if (!isDragging.value) return
-  
-  // Safely access clientX for both mouse and touch events
-  const currentX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0)
-  const deltaX = currentX - startX.value
-  
-  const panel = document.querySelector(`.side-panel.${isDragging.value}`)
+const handlePointerMove = (e: PointerEvent | MouseEvent | TouchEvent) => {
+  if (!dragSide.value) return
+  const panel = document.querySelector<HTMLElement>(`.side-panel.${dragSide.value}`)
   if (!panel) return
-  
+
   const isInitiallyOpen = panel.dataset.initialState === 'open'
-  const panelWidth = panel.offsetWidth
-  let percentMoved = (deltaX / panelWidth) * 100
-  let newPosition = 0
-  
-  if (isDragging.value === 'left') {
-    if (isInitiallyOpen) {
-      // If panel was initially open, negative deltaX means dragging left to close
-      // Starting from 0%, going to -100%
-      newPosition = Math.min(0, Math.max(-100, percentMoved))
-    } else {
-      // If panel was initially closed, positive deltaX means dragging right to open
-      // Starting from -100%, going to 0%
-      newPosition = Math.min(0, Math.max(-100, -100 + percentMoved))
-    }
-    
-    // Visual feedback
-    if (newPosition > -20) {
-      document.body.classList.add('panel-near-open')
-    } else {
-      document.body.classList.remove('panel-near-open')
-    }
+  const currentX = getClientX(e)
+  const deltaX = currentX - startX.value
+  const percent = (deltaX / panel.offsetWidth) * 100
+  let pos = 0
+
+  if (dragSide.value === 'left') {
+    pos = isInitiallyOpen ? Math.min(0, Math.max(-100, percent)) : Math.min(0, Math.max(-100, -100 + percent))
+    pos > -20 ? document.body.classList.add('panel-near-open') : document.body.classList.remove('panel-near-open')
   } else {
-    if (isInitiallyOpen) {
-      // If panel was initially open, positive deltaX means dragging right to close
-      // Starting from 0%, going to 100%
-      newPosition = Math.max(0, Math.min(100, percentMoved))
-    } else {
-      // If panel was initially closed, negative deltaX means dragging left to open
-      // Starting from 100%, going to 0%
-      newPosition = Math.max(0, Math.min(100, 100 + percentMoved))
-    }
-    
-    // Visual feedback
-    if (newPosition < 20) {
-      document.body.classList.add('panel-near-open')
-    } else {
-      document.body.classList.remove('panel-near-open')
-    }
+    pos = isInitiallyOpen ? Math.max(0, Math.min(100, percent)) : Math.max(0, Math.min(100, 100 + percent))
+    pos < 20 ? document.body.classList.add('panel-near-open') : document.body.classList.remove('panel-near-open')
   }
-  
-  panel.style.transform = `translateX(${newPosition}%)`
-  
-  // Prevent default to stop scrolling
-  if (e.preventDefault) {
-    e.preventDefault()
-  }
+
+  panel.style.transform = `translateX(${pos}%)`
+  e.preventDefault?.()
 }
 
-// Pointer end handler
-const handlePointerEnd = (e) => {
-  if (!isDragging.value) return
-  
-  const panel = document.querySelector(`.side-panel.${isDragging.value}`)
+const handlePointerEnd = (
+  _e: PointerEvent | MouseEvent | TouchEvent,
+  move: EventListenerOrEventListenerObject,
+  end: EventListenerOrEventListenerObject
+) => {
+  if (!dragSide.value) return
+  const panel = document.querySelector<HTMLElement>(`.side-panel.${dragSide.value}`)
   if (!panel) {
-    isDragging.value = false
+    dragSide.value = null
     return
   }
-  
-  // Remove dragging class
+
   panel.classList.remove('dragging')
-  
-  // Get the current transform value
-  const transform = panel.style.transform || ''
-  const match = transform.match(/translateX\(([-\d.]+)%\)/)
-  const isInitiallyOpen = panel.dataset.initialState === 'open'
-  
-  if (match) {
-    const currentPos = parseFloat(match[1])
-    
-    // Clear the inline style
-    panel.style.transform = ''
-    
-    if (isDragging.value === 'left') {
-      if (isInitiallyOpen) {
-        // For left panel when initially open: if moved more than 50% left, close it
-        if (currentPos < -50) {
-          closePanels()
-        } else {
-          openPanel('left')
-        }
-      } else {
-        // For left panel when initially closed: if moved more than 50% right, open it
-        if (currentPos > -50) {
-          openPanel('left')
-        } else {
-          closePanels()
-        }
-      }
-    } else {
-      if (isInitiallyOpen) {
-        // For right panel when initially open: if moved more than 50% right, close it
-        if (currentPos > 50) {
-          closePanels()
-        } else {
-          openPanel('right')
-        }
-      } else {
-        // For right panel when initially closed: if moved more than 50% left, open it
-        if (currentPos < 50) {
-          openPanel('right')
-        } else {
-          closePanels()
-        }
-      }
-    }
+  const match = panel.style.transform.match(/translateX\(([-\d.]+)%\)/)
+  const pos = match ? parseFloat(match[1]) : 0
+  const initiallyOpen = panel.dataset.initialState === 'open'
+  panel.style.transform = ''
+
+  if (dragSide.value === 'left') {
+    initiallyOpen ? (pos < -50 ? closePanels() : openPanel('left')) : (pos > -50 ? openPanel('left') : closePanels())
   } else {
-    // Default to closing if we can't determine position
-    closePanels()
+    initiallyOpen ? (pos > 50 ? closePanels() : openPanel('right')) : (pos < 50 ? openPanel('right') : closePanels())
   }
-  
-  // Clean up
+
   delete panel.dataset.initialState
-  
-  // Clean up event listeners
-  if (window.PointerEvent) {
-    document.removeEventListener('pointermove', handlePointerMove)
-    document.removeEventListener('pointerup', handlePointerEnd)
-    document.removeEventListener('pointercancel', handlePointerEnd)
-  } else {
-    document.removeEventListener('mousemove', handlePointerMove)
-    document.removeEventListener('touchmove', handlePointerMove)
-    document.removeEventListener('mouseup', handlePointerEnd)
-    document.removeEventListener('touchend', handlePointerEnd)
-    document.removeEventListener('touchcancel', handlePointerEnd)
-  }
-  
+  document.removeEventListener(pointerMoveEvent, move)
+  document.removeEventListener(pointerEndEvent, end)
+  document.removeEventListener(pointerCancelEvent, end)
   document.body.classList.remove('panel-near-open')
-  isDragging.value = false
+  dragSide.value = null
 }
 
-// Lifecycle hooks for event handling
+/**
+ * Event wiring
+ */
+const handleMouseMove = throttleRAF((e: MouseEvent) => {
+  if (!isDragging.value) mouseX.value = e.clientX
+})
+
+const handleMouseLeave = () => (mouseX.value = null)
+const handleEscKey = (e: KeyboardEvent) => e.key === 'Escape' && (menuOpen.value ? closeMenu() : closePanels())
+const handleResize = () => {
+  checkMobile()
+  if (isMobile.value && activePanelSide.value) closePanels()
+}
+
+/**
+ * Pointer event names for fallback
+ */
+const hasPointer = 'PointerEvent' in window
+const pointerMoveEvent = hasPointer ? 'pointermove' : 'touchmove'
+const pointerEndEvent = hasPointer ? 'pointerup' : 'touchend'
+const pointerCancelEvent = hasPointer ? 'pointercancel' : 'touchcancel'
+
+/**
+ * Lifecycle hooks
+ */
 onMounted(() => {
   document.addEventListener('keydown', handleEscKey)
   document.addEventListener('mousemove', handleMouseMove)
   document.addEventListener('mouseleave', handleMouseLeave)
-  window.addEventListener('resize', handleResize)
+  window.addEventListener('resize', handleResize, { passive: true })
   checkMobile()
 })
 
@@ -313,120 +197,53 @@ onBeforeUnmount(() => {
   document.removeEventListener('mousemove', handleMouseMove)
   document.removeEventListener('mouseleave', handleMouseLeave)
   window.removeEventListener('resize', handleResize)
-  
-  // Clean up all possible event listeners
-  if (window.PointerEvent) {
-    document.removeEventListener('pointermove', handlePointerMove)
-    document.removeEventListener('pointerup', handlePointerEnd)
-    document.removeEventListener('pointercancel', handlePointerEnd)
-  } else {
-    document.removeEventListener('mousemove', handlePointerMove)
-    document.removeEventListener('touchmove', handlePointerMove)
-    document.removeEventListener('mouseup', handlePointerEnd)
-    document.removeEventListener('touchend', handlePointerEnd)
-    document.removeEventListener('touchcancel', handlePointerEnd)
-  }
 })
 
-// Handle panel toggling from mobile navigation
-const handleMobilePanel = (side) => {
-  if (menuOpen.value) {
-    closeMenu()
-  }
-  
-  if (activePanelSide.value === side) {
-    closePanels()
-  } else {
-    openPanel(side)
-  }
+const handleMobilePanel = (side: 'left' | 'right') => {
+  if (menuOpen.value) closeMenu()
+  activePanelSide.value === side ? closePanels() : openPanel(side)
 }
 </script>
 
 <template>
   <div class="app-container" :class="currentTheme">
-    <div class="backdrop" :class="{ 'active': activePanelSide !== null || menuOpen }" @click="handleBackdropClick"></div>
-    
-    <!-- Left Panel (Cities) -->
-    <div 
-      class="side-panel left" 
-      :class="{ 
-        'active': activePanelSide === 'left',
-        'dragging': isDragging === 'left',
-        'preview': showLeftPreview()
-      }"
+    <div class="backdrop" :class="{ active: !!activePanelSide || menuOpen }" @click="menuOpen ? closeMenu() : closePanels()" />
+
+    <div
+      class="side-panel left"
+      :class="{ active: activePanelSide === 'left', dragging: dragSide === 'left', preview: showLeftPreview() }"
     >
-      <div 
-        class="panel-tab" 
-        @pointerdown="(e) => handlePointerStart(e, 'left')"
-      >
-        <span>Cities</span>
-        <div v-if="activePanelSide === 'left'" class="drag-indicator left"></div>
-      </div>
-      
-      <div class="panel-content">
-        <button class="close-btn" @click="closePanels">&times;</button>
-        <PanelCities />
-      </div>
+      <div class="panel-tab" @pointerdown="e => handlePointerStart(e, 'left')"><span>Cities</span></div>
+      <div class="panel-content"><button class="close-btn" @click="closePanels">×</button><PanelCities /></div>
     </div>
 
-
-
-
-
-
-    
-    <!-- Right Panel (Technology) -->
-    <div 
-      class="side-panel right" 
-      :class="{ 
-        'active': activePanelSide === 'right',
-        'dragging': isDragging === 'right',
-        'preview': showRightPreview()
-      }"
+    <div
+      class="side-panel right"
+      :class="{ active: activePanelSide === 'right', dragging: dragSide === 'right', preview: showRightPreview() }"
     >
-      <div 
-        class="panel-tab" 
-        @pointerdown="(e) => handlePointerStart(e, 'right')"
-      >
-        <span>Technology</span>
-        <div v-if="activePanelSide === 'right'" class="drag-indicator right"></div>
-      </div>
-      
-      <div class="panel-content">
-        <button class="close-btn" @click="closePanels">&times;</button>
-        <PanelTech />
-      </div>
+      <div class="panel-tab" @pointerdown="e => handlePointerStart(e, 'right')"><span>Technology</span></div>
+      <div class="panel-content"><button class="close-btn" @click="closePanels">×</button><PanelTech /></div>
     </div>
 
-
-    <!-- Mobile navigation -->
-    <NavigationMobile 
-      :menuOpen="menuOpen" 
+    <NavigationMobile
+      :menuOpen="menuOpen"
       :activePanelSide="activePanelSide"
-      @toggleMenu="toggleMenu" 
+      @toggleMenu="toggleMenu"
       @togglePanel="handleMobilePanel"
       @closePanels="closePanels"
     />
 
-    <!-- Main content -->
     <div class="page-wrapper">
-      <div class="main-content">
-        <!-- Top navigation -->
-        <Header/>
-        
-        <main class="page-content">
-          <router-view v-slot="{ Component }">
-            <Suspense>
-              <component :is="Component" />
-              <template #fallback>
-                <div class="loading">Loading...</div>
-              </template>
-            </Suspense>
-          </router-view>
-        </main>
-        
-        <Footer />
-      </div>
+      <Header />
+      <main class="page-content">
+        <router-view v-slot="{ Component }">
+          <Suspense>
+            <component :is="Component" />
+            <template #fallback><div class="loading">Loading...</div></template>
+          </Suspense>
+        </router-view>
+      </main>
+      <Footer />
     </div>
   </div>
 </template>
@@ -434,6 +251,7 @@ const handleMobilePanel = (side) => {
 <style lang="scss">
 @import './assets/scss/variables';
 @import './assets/scss/_themes.scss';
+@import './assets/scss/_container.scss';
 
 .app-container {
   position: relative;
@@ -455,9 +273,10 @@ const handleMobilePanel = (side) => {
 
 // Main content container
 .main-content {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 $spacing-xl;
+
+ 
+
+
   width: 100%;
   flex: 1;
   display: flex;
@@ -876,12 +695,7 @@ const handleMobilePanel = (side) => {
     }
   }
   
-  // Adjust main content padding
-  .main-content {
-    padding: 0 $spacing-md;
-    padding-bottom: 80px; // Add bottom padding to make space for the fixed tabs
-  }
-  
+
   .expertise-grid {
     grid-template-columns: 1fr;
   }

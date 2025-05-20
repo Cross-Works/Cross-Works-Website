@@ -1,6 +1,6 @@
 <template>
   <div class="homepage">
-    <div class="page-wrapper">
+  
       <div class="main-content">
     
         <!-- Hero section -->
@@ -83,7 +83,7 @@
 
        
       </div>
-    </div>
+ 
   </div>
 </template>
 
@@ -107,14 +107,12 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
-@import '../assets/scss/variables';
-@import '../assets/scss/typography';
+@use '../assets/scss/variables' as *;
+@use '../assets/scss/typography' as *;
+@use '../assets/scss/templates' as *;
 
 .homepage {
-  position: relative;
-  overflow-x: hidden;
-  min-height: 100vh;
-  width: 100%;
+  @extend %template-page;
 }
 
 // Page wrapper for push effect
@@ -129,6 +127,12 @@ onBeforeUnmount(() => {
     transform: translateX(-5%);
   }
 }
+
+
+.main-content{
+  @extend %template-container;
+}
+
 
 // Placeholder for images
 .placeholder-img {
@@ -147,15 +151,6 @@ onBeforeUnmount(() => {
   }
 }
 
-// Main content with proper padding
-.main-content {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 calc(5vw + $spacing-lg);
-  /* Use max() to ensure minimum padding */
-  padding-left: max(calc(5vw + $spacing-lg), 90px);
-  padding-right: max(calc(5vw + $spacing-lg), 90px);
-}
 
 
 
@@ -171,7 +166,6 @@ onBeforeUnmount(() => {
     margin-bottom: $spacing-xxl;
     
     h1 {
-
       color: $xw-teal-medium;
       margin: 0;
       line-height: 1;

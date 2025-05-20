@@ -26,69 +26,72 @@
 </template>
 
 <script>
-export default {
-    name: "Footer",
-};
+  export default {
+      name: "Footer",
+  };
 </script>
 
 <style lang="scss" scoped>
 
-@use '../../assets/scss/variables' as *;
+  @use '../../assets/scss/variables' as *;
+  @use '../../assets/scss/templates' as *;
 
 
-footer {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: $spacing-xl;
-  padding: $spacing-xxl 0;
-  border-top: 1px solid var(--theme-border);
-  margin-top: auto;
-  
-  .footer-section {
-    h4 {
-      color: var(--theme-accent);
-      margin-bottom: $spacing-md;
-      font-size: 16px;
-    }
+  footer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-xl;
+    padding: $spacing-xxl 0;
+    border-top: 1px solid var(--theme-border);
+    margin-top: auto;
+
+    @extend %template-container;
+
     
-    p {
-      color: var(--theme-text);
-      margin-bottom: $spacing-sm;
-      font-size: 14px;
-    }
-    
-    .social-icons {
-      display: flex;
-      gap: $spacing-md;
+    .footer-section {
+      h4 {
+        color: var(--theme-accent);
+        margin-bottom: $spacing-md;
+        font-size: 16px;
+      }
       
-      .social-icon {
-        color: var(--theme-link);
-        transition: color 0.2s;
+      p {
+        color: var(--theme-text);
+        margin-bottom: $spacing-sm;
+        font-size: 14px;
+      }
+      
+      .social-icons {
+        display: flex;
+        gap: $spacing-md;
         
-        &:hover {
-          color: var(--theme-link-hover);
+        .social-icon {
+          color: var(--theme-link);
+          transition: color 0.2s;
+          
+          &:hover {
+            color: var(--theme-link-hover);
+          }
         }
       }
     }
   }
-}
 
 
 
-@media (max-width: $breakpoint-lg) {
+  @media (max-width: $breakpoint-lg) {
 
-  
-  footer {
-    grid-template-columns: 1fr;
-    gap: $spacing-xl;
-    text-align: center;
     
-    .social-icons {
-      justify-content: center;
+    footer {
+      grid-template-columns: 1fr;
+      gap: $spacing-xl;
+      text-align: center;
+      
+      .social-icons {
+        justify-content: center;
+      }
     }
   }
-}
-
 
 
 </style>
