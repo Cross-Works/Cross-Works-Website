@@ -2,7 +2,6 @@ import React, { Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Fallback from "./components/Fallback";
 import { ContentProvider } from "./context/Content";
-import Footer from "./components/Footer";
 
 const HomePage = React.lazy(() => import("./pages/HomePage"));
 const ContactPage = React.lazy(() => import("./pages/ContactPage"));
@@ -30,7 +29,6 @@ const App: React.FC = () => {
                 <Route path="*" element={<NoPage />} />
               </Routes>
             </div>
-            <Footer />
           </Suspense>
         </Router>
       </ContentProvider>
