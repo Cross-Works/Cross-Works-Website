@@ -1,3 +1,5 @@
+import type { Key } from "react";
+
 // src/types.ts
 export interface Category {
   id: number;
@@ -23,15 +25,40 @@ export interface Card {
     documentId: string;
   };
 }
- 
+
 export interface Block {
-    id: number
-    Title: string
-    Description: any[]
-    Media: Array<{
-        id: number
-        url: string
-        alternativeText: string | null
-    }>
-      categories: Category[];
+  id: number;
+  Title: string;
+  Description: any[];
+  Media: Array<{
+    id: number;
+    url: string;
+    alternativeText: string | null;
+  }>;
+  categories: Category[];
+}
+
+// Define the shape of your Footer single type
+export interface FooterSection {
+  findTitle: string;
+  addressLine1: string;
+  addressLine2: string;
+  mapLink: string;
+  contactTitle: string;
+  contactPhone: string;
+  contactHours: string;
+  contactEmail: string;
+  socialLinks: { platform: string; url: string }[];
+  copyrightText: string;
+}
+
+export interface ContactSection {
+  title: string;
+  description: string;
+  phoneNumber: string;
+  contactItems: {
+    id: Key | null | undefined;
+    label: string;
+    email: string;
+  }[];
 }

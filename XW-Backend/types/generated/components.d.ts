@@ -1,5 +1,16 @@
 import type { Schema, Struct } from '@strapi/strapi';
 
+export interface SharedContactItem extends Struct.ComponentSchema {
+  collectionName: 'components_shared_contact_items';
+  info: {
+    displayName: 'Contact Item';
+  };
+  attributes: {
+    email: Schema.Attribute.Email;
+    label: Schema.Attribute.String;
+  };
+}
+
 export interface SharedMedia extends Struct.ComponentSchema {
   collectionName: 'components_shared_media';
   info: {
@@ -62,14 +73,29 @@ export interface SharedSlider extends Struct.ComponentSchema {
   };
 }
 
+export interface SharedSocialLink extends Struct.ComponentSchema {
+  collectionName: 'components_shared_social_links';
+  info: {
+    displayName: 'Social Link';
+  };
+  attributes: {
+    platform: Schema.Attribute.Enumeration<
+      ['LinkedIn', 'Instagram', 'YouTube', 'Facebook', 'Twitter']
+    >;
+    url: Schema.Attribute.Text;
+  };
+}
+
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
+      'shared.contact-item': SharedContactItem;
       'shared.media': SharedMedia;
       'shared.quote': SharedQuote;
       'shared.rich-text': SharedRichText;
       'shared.seo': SharedSeo;
       'shared.slider': SharedSlider;
+      'shared.social-link': SharedSocialLink;
     }
   }
 }

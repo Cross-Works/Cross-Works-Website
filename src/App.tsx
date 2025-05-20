@@ -2,8 +2,10 @@ import React, { Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Fallback from "./components/Fallback";
 import { ContentProvider } from "./context/Content";
+import Footer from "./components/Footer";
 
 const HomePage = React.lazy(() => import("./pages/HomePage"));
+const ContactPage = React.lazy(() => import("./pages/ContactPage"));
 const NoPage = React.lazy(() => import("./pages/NoPage"));
 const NewsPage = React.lazy(() => import("./pages/NewsPage"));
 const CitiesPanel = React.lazy(() => import("./components/CitiesPanel"));
@@ -20,6 +22,7 @@ const App: React.FC = () => {
             <div>
               <Routes>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/contact" element={<ContactPage />} />
                 <Route path="/news" element={<NewsPage />} />
                 <Route path="/cities" element={<CitiesPanel />} />
                 <Route path="/tech" element={<TechPanel />} />
@@ -27,6 +30,7 @@ const App: React.FC = () => {
                 <Route path="*" element={<NoPage />} />
               </Routes>
             </div>
+            <Footer />
           </Suspense>
         </Router>
       </ContentProvider>
