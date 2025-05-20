@@ -1,0 +1,46 @@
+{
+  "kind": "collectionType",
+  "collectionName": "footers",
+  "info": {
+    "singularName": "footer",
+    "pluralName": "footers",
+    "displayName": "Footer"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "findTitle": {
+      "type": "string"
+    },
+    "addressLine1": {
+      "type": "string"
+    },
+    "addressLine2": {
+      "type": "string"
+    },
+    "mapLink": {
+      "type": "string"
+    },
+    "contactTitle": {
+      "type": "string"
+    },
+    "contactPhone": {
+      "type": "string"
+    },
+    "contactHours": {
+      "type": "string"
+    },
+    "contactEmail": {
+      "type": "email"
+    },
+    "socialLinks": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.social-link"
+    },
+    "copyrightText": {
+      "type": "text"
+    }
+  }
+}

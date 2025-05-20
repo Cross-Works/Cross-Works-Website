@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_shared_contact_items",
+  "info": {
+    "displayName": "Contact Item"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string"
+    },
+    "email": {
+      "type": "email"
+    }
+  }
+}
