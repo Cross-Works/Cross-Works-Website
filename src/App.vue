@@ -263,7 +263,6 @@ const handleMobilePanel = (side: 'left' | 'right') => {
   transition: background-color 0.3s, color 0.3s;
 }
 
-// Page wrapper for push effect
 .page-wrapper {
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   min-height: 100vh;
@@ -271,24 +270,18 @@ const handleMobilePanel = (side: 'left' | 'right') => {
   flex-direction: column;
 }
 
-// Main content container
 .main-content {
-
- 
-
-
   width: 100%;
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-// Page content area
 .page-content {
   flex: 1;
 }
 
-// Backdrop overlay
+
 .backdrop {
   position: fixed;
   top: 0;
@@ -307,12 +300,12 @@ const handleMobilePanel = (side: 'left' | 'right') => {
   }
 }
 
-// Side panels - always visible with tab and draggable
+
 .side-panel {
   position: fixed;
   top: 0;
   height: 100vh;
-  // Panels take up full width minus space for both tabs on sides
+  
   width: calc(100% - 160px);
   background-color: var(--theme-bg);
   z-index: 100;
@@ -321,7 +314,7 @@ const handleMobilePanel = (side: 'left' | 'right') => {
   
   &.dragging {
     transition: none !important;
-    z-index: 102; // Ensure dragging panel is above everything
+    z-index: 102;
     
     .panel-tab {
       cursor: grabbing;
@@ -333,9 +326,11 @@ const handleMobilePanel = (side: 'left' | 'right') => {
     transform: translateX(-100%);
     border-right: 8px solid var(--theme-panel-left);
     transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+
+   background-color: $xw-teal-medium;
     
     &.preview:not(.active):not(.dragging) {
-      transform: translateX(-90%); // Show 10% of the panel when in preview mode
+      transform: translateX(-90%);
       transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
     
@@ -353,8 +348,8 @@ const handleMobilePanel = (side: 'left' | 'right') => {
       letter-spacing: 1px;
       cursor: grab;
       touch-action: none;
-      pointer-events: auto; // Ensure the tab can always be clicked/dragged
-      z-index: 101; // Make tabs above panels but below dragging panels
+      pointer-events: auto; 
+      z-index: 101;
       
       span {
         transform: rotate(180deg);
@@ -366,7 +361,6 @@ const handleMobilePanel = (side: 'left' | 'right') => {
       transform: translateX(0);
     }
     
-    // When closed, only the tab sticks out
     &:not(.active):not(.dragging):not(.preview) {
       transform: translateX(-100%);
     }
@@ -379,9 +373,11 @@ const handleMobilePanel = (side: 'left' | 'right') => {
     transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     
     &.preview:not(.active):not(.dragging) {
-      transform: translateX(90%); // Show 10% of the panel when in preview mode
+      transform: translateX(90%); 
       transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
+
+    background-color: $xw-yellow;
     
     .panel-tab {
       position: absolute;
@@ -390,14 +386,15 @@ const handleMobilePanel = (side: 'left' | 'right') => {
       transform: translateY(-50%);
       writing-mode: vertical-lr;
       padding: 30px 12px;
-      background: var(--theme-panel-right);
+   
       color: var(--theme-text);
       font-weight: 600;
       letter-spacing: 1px;
       cursor: grab;
       touch-action: none;
-      pointer-events: auto; // Ensure the tab can always be clicked/dragged
-      z-index: 101; // Make tabs above panels but below dragging panels
+      pointer-events: auto; 
+      z-index: 101; 
+      background-color: $xw-yellow;
       
       span {
         user-select: none;
@@ -408,7 +405,7 @@ const handleMobilePanel = (side: 'left' | 'right') => {
       transform: translateX(0);
     }
     
-    // When closed, only the tab sticks out
+
     &:not(.active):not(.dragging):not(.preview) {
       transform: translateX(100%);
     }
@@ -426,7 +423,7 @@ const handleMobilePanel = (side: 'left' | 'right') => {
     z-index: 101;
     text-transform: uppercase;
     touch-action: none;
-    position: relative; // Ensure the indicator is positioned relative to the tab
+    position: relative;
   }
   
   .panel-content {
@@ -495,7 +492,6 @@ const handleMobilePanel = (side: 'left' | 'right') => {
   }
 }
 
-// Drag indicator in tab
 .drag-indicator {
   position: absolute;
   width: 24px;
@@ -519,12 +515,9 @@ const handleMobilePanel = (side: 'left' | 'right') => {
   }
 }
 
-// When open, keep tab clickable
 .side-panel.active .panel-tab {
   cursor: grab;
-  &:hover {
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  }
+
 }
 
 @keyframes pulseLeft {
@@ -537,7 +530,6 @@ const handleMobilePanel = (side: 'left' | 'right') => {
   50% { transform: translate(-35%, -50%); }
 }
 
-// Visual indicator for panel near open state
 :global(body.panel-near-open) .side-panel {
   &.left.dragging .panel-tab {
     box-shadow: 0 0 20px var(--theme-panel-left);
@@ -548,7 +540,6 @@ const handleMobilePanel = (side: 'left' | 'right') => {
   }
 }
 
-// Loading state
 .loading {
   display: flex;
   justify-content: center;
@@ -558,12 +549,10 @@ const handleMobilePanel = (side: 'left' | 'right') => {
   color: var(--theme-accent);
 }
 
-// Panel open state for body
 :global(body.panel-open) {
   overflow: hidden;
 }
 
-// Media queries for responsive design
 @media (max-width: $breakpoint-lg) {
   .panel-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -580,7 +569,6 @@ const handleMobilePanel = (side: 'left' | 'right') => {
   }
 }
 
-// Tablet breakpoint
 @media (max-width: $breakpoint-md) {
   .side-panel .panel-tab {
     padding: 15px 5px;
@@ -604,17 +592,14 @@ const handleMobilePanel = (side: 'left' | 'right') => {
 
 // Mobile breakpoint
 @media (max-width: $breakpoint-sm) {
-  // Show mobile menu button
   .mobile-menu-button {
     display: flex;
   }
   
-  // Show home button when panel is open
   .mobile-home-button {
     display: flex;
   }
   
-  // Bottom navigation bar for mobile
   .mobile-nav-bar {
     position: fixed;
     bottom: $spacing-lg;
@@ -627,9 +612,8 @@ const handleMobilePanel = (side: 'left' | 'right') => {
     padding: 0 $spacing-md;
   }
   
-  // Adjust panel sizing for mobile
   .side-panel {
-    width: 100%; // Full width on mobile
+    width: 100%;
     
     &.left {
       .panel-tab {
@@ -687,11 +671,11 @@ const handleMobilePanel = (side: 'left' | 'right') => {
     
     // Mobile panel previews are disabled
     &.preview:not(.active):not(.dragging) {
-      transform: translateX(-100%); // No preview on mobile
+      transform: translateX(-100%); 
     }
     
     &.right.preview:not(.active):not(.dragging) {
-      transform: translateX(100%); // No preview on mobile
+      transform: translateX(100%); 
     }
   }
   
@@ -704,12 +688,11 @@ const handleMobilePanel = (side: 'left' | 'right') => {
     padding: $spacing-md;
   }
   
-  // Hide drag indicators on mobile
   .drag-indicator {
     display: none;
   }
   
-  // Only show the home button when a panel is open
+
   .mobile-menu-button {
     display: flex;
   }

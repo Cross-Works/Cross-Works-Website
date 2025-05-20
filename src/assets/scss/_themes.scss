@@ -79,3 +79,10 @@
   --theme-border: #{$xw-yellow-dark};
   --theme-shadow: rgba(0, 0, 0, 0.1);
 } 
+
+
+//selection
+::selection {
+  background: var(--theme-accent);
+  color: var(--theme-bg);
+}
