@@ -1,40 +1,55 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import PanelCities from './components/Layout/PanelCities.vue'
 import PanelTech from './components/Layout/PanelTech.vue'
 import { currentTheme } from './store/themeState'
 import useTheme from './composables/useTheme'
 import Navigation from './components/Navigation.vue'
+import NavigationMobile from './components/NavigationMobile.vue'
 import Header from './components/Layout/Header.vue'
 import Footer from './components/Layout/Footer.vue'
 
 // Get theme utilities
 const { setTheme } = useTheme()
 
-// State for side panels
+// State for side panels and mobile menu
 const activePanelSide = ref(null)
 const isDragging = ref(false)
 const startX = ref(0)
 const PANEL_WIDTH = 80 // Width in pixels of visible panel when closed
+const menuOpen = ref(false)
+const isMobile = ref(false)
 
 // Mouse position tracking for panel hover effect
 const mouseX = ref(null)
 const windowWidth = ref(window.innerWidth)
 
+// Check if device is mobile
+const checkMobile = () => {
+  isMobile.value = window.innerWidth < 768
+  windowWidth.value = window.innerWidth
+}
+
 // Track window width for calculations
 const handleResize = () => {
   windowWidth.value = window.innerWidth
+  checkMobile()
+  
+  // Close panels when switching to mobile view if they're open
+  if (isMobile.value && activePanelSide.value !== null) {
+    closePanels()
+  }
 }
 
 // Left panel should preview if mouse is in left 20%
 const showLeftPreview = () => {
-  if (isDragging.value || activePanelSide.value !== null) return false
+  if (isDragging.value || activePanelSide.value !== null || isMobile.value) return false
   return mouseX.value !== null && mouseX.value < windowWidth.value * 0.2
 }
 
 // Right panel should preview if mouse is in right 20%
 const showRightPreview = () => {
-  if (isDragging.value || activePanelSide.value !== null) return false
+  if (isDragging.value || activePanelSide.value !== null || isMobile.value) return false
   return mouseX.value !== null && mouseX.value > windowWidth.value * 0.8
 }
 
@@ -50,9 +65,30 @@ const handleMouseLeave = () => {
   mouseX.value = null
 }
 
+// Toggle mobile menu
+const toggleMenu = () => {
+  if (activePanelSide.value === null) {
+    menuOpen.value = !menuOpen.value
+  }
+}
+
+const closeMenu = () => {
+  menuOpen.value = false
+}
+
+// Handle backdrop click
+const handleBackdropClick = () => {
+  if (menuOpen.value) {
+    closeMenu()
+  } else {
+    closePanels()
+  }
+}
+
 // Panel control functions
 function openPanel(side) {
   activePanelSide.value = side
+  menuOpen.value = false
   document.body.classList.add('panel-open')
 }
 
@@ -64,12 +100,21 @@ function closePanels() {
 // Add event listener for escape key
 const handleEscKey = (event) => {
   if (event.key === 'Escape') {
-    closePanels()
+    if (menuOpen.value) {
+      closeMenu()
+    } else {
+      closePanels()
+    }
   }
 }
 
 // Pointer start handler - works for both mouse and touch
 const handlePointerStart = (e, side) => {
+  // Prevent menu from opening when starting panel drag
+  if (menuOpen.value) {
+    closeMenu()
+  }
+
   // Allow dragging even when panel is open (to close it)
   // We'll track the initial state to know if we're opening or closing
   const isOpening = activePanelSide.value === null
@@ -260,7 +305,7 @@ onMounted(() => {
   document.addEventListener('mousemove', handleMouseMove)
   document.addEventListener('mouseleave', handleMouseLeave)
   window.addEventListener('resize', handleResize)
-  handleResize()
+  checkMobile()
 })
 
 onBeforeUnmount(() => {
@@ -282,11 +327,24 @@ onBeforeUnmount(() => {
     document.removeEventListener('touchcancel', handlePointerEnd)
   }
 })
+
+// Handle panel toggling from mobile navigation
+const handleMobilePanel = (side) => {
+  if (menuOpen.value) {
+    closeMenu()
+  }
+  
+  if (activePanelSide.value === side) {
+    closePanels()
+  } else {
+    openPanel(side)
+  }
+}
 </script>
 
 <template>
   <div class="app-container" :class="currentTheme">
-    <div class="backdrop" :class="{ 'active': activePanelSide !== null }" @click="closePanels"></div>
+    <div class="backdrop" :class="{ 'active': activePanelSide !== null || menuOpen }" @click="handleBackdropClick"></div>
     
     <!-- Left Panel (Cities) -->
     <div 
@@ -311,6 +369,12 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
+
+
+
+
+
+    
     <!-- Right Panel (Technology) -->
     <div 
       class="side-panel right" 
@@ -333,6 +397,16 @@ onBeforeUnmount(() => {
         <PanelTech />
       </div>
     </div>
+
+
+    <!-- Mobile navigation -->
+    <NavigationMobile 
+      :menuOpen="menuOpen" 
+      :activePanelSide="activePanelSide"
+      @toggleMenu="toggleMenu" 
+      @togglePanel="handleMobilePanel"
+      @closePanels="closePanels"
+    />
 
     <!-- Main content -->
     <div class="page-wrapper">
@@ -469,14 +543,6 @@ onBeforeUnmount(() => {
       }
     }
     
-    // When open, keep tab clickable
-    &.active .panel-tab {
-      cursor: grab;
-      &:hover {
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-      }
-    }
-    
     &.active {
       transform: translateX(0);
     }
@@ -519,14 +585,6 @@ onBeforeUnmount(() => {
       }
     }
     
-    // When open, keep tab clickable
-    &.active .panel-tab {
-      cursor: grab;
-      &:hover {
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-      }
-    }
-    
     &.active {
       transform: translateX(0);
     }
@@ -546,10 +604,10 @@ onBeforeUnmount(() => {
     justify-content: center;
     font-size: 18px;
     transition: all 0.3s;
-  
     z-index: 101;
     text-transform: uppercase;
     touch-action: none;
+    position: relative; // Ensure the indicator is positioned relative to the tab
   }
   
   .panel-content {
@@ -618,6 +676,48 @@ onBeforeUnmount(() => {
   }
 }
 
+// Drag indicator in tab
+.drag-indicator {
+  position: absolute;
+  width: 24px;
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.6);
+  border-radius: 2px;
+  transition: transform 0.3s ease;
+  
+  &.left {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulseLeft 2s infinite;
+  }
+  
+  &.right {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulseRight 2s infinite;
+  }
+}
+
+// When open, keep tab clickable
+.side-panel.active .panel-tab {
+  cursor: grab;
+  &:hover {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+}
+
+@keyframes pulseLeft {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50% { transform: translate(-65%, -50%); }
+}
+
+@keyframes pulseRight {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50% { transform: translate(-35%, -50%); }
+}
+
 // Visual indicator for panel near open state
 :global(body.panel-near-open) .side-panel {
   &.left.dragging .panel-tab {
@@ -661,6 +761,7 @@ onBeforeUnmount(() => {
   }
 }
 
+// Tablet breakpoint
 @media (max-width: $breakpoint-md) {
   .side-panel .panel-tab {
     padding: 15px 5px;
@@ -682,7 +783,105 @@ onBeforeUnmount(() => {
   }
 }
 
+// Mobile breakpoint
 @media (max-width: $breakpoint-sm) {
+  // Show mobile menu button
+  .mobile-menu-button {
+    display: flex;
+  }
+  
+  // Show home button when panel is open
+  .mobile-home-button {
+    display: flex;
+  }
+  
+  // Bottom navigation bar for mobile
+  .mobile-nav-bar {
+    position: fixed;
+    bottom: $spacing-lg;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 95;
+    padding: 0 $spacing-md;
+  }
+  
+  // Adjust panel sizing for mobile
+  .side-panel {
+    width: 100%; // Full width on mobile
+    
+    &.left {
+      .panel-tab {
+        position: fixed;
+        bottom: $spacing-lg;
+        left: $spacing-md;
+        top: auto;
+        transform: none;
+        height: 50px;
+        width: 120px;
+        max-width: 120px;
+        writing-mode: horizontal-tb;
+        border-radius: 25px;
+        background-color: var(--theme-panel-left);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        
+        span {
+          transform: none;
+        }
+      }
+      
+      &.active {
+        .panel-tab {
+          opacity: 0.7;
+        }
+      }
+    }
+    
+    &.right {
+      .panel-tab {
+        position: fixed;
+        bottom: $spacing-lg;
+        right: $spacing-md;
+        top: auto;
+        transform: none;
+        height: 50px;
+        width: 120px;
+        max-width: 120px;
+        writing-mode: horizontal-tb;
+        border-radius: 25px;
+        background-color: var(--theme-panel-right);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        
+        span {
+          transform: none;
+        }
+      }
+      
+      &.active {
+        .panel-tab {
+          opacity: 0.7;
+        }
+      }
+    }
+    
+    // Mobile panel previews are disabled
+    &.preview:not(.active):not(.dragging) {
+      transform: translateX(-100%); // No preview on mobile
+    }
+    
+    &.right.preview:not(.active):not(.dragging) {
+      transform: translateX(100%); // No preview on mobile
+    }
+  }
+  
+  // Adjust main content padding
+  .main-content {
+    padding: 0 $spacing-md;
+    padding-bottom: 80px; // Add bottom padding to make space for the fixed tabs
+  }
+  
   .expertise-grid {
     grid-template-columns: 1fr;
   }
@@ -691,48 +890,18 @@ onBeforeUnmount(() => {
     padding: $spacing-md;
   }
   
-  .side-panel .panel-tab {
-    padding: 10px 5px;
-    font-size: 14px;
-    height: 150px;
-  }
-}
-
-// Add styles for drag indicator
-.panel-tab {
-  position: relative; // Ensure the indicator is positioned relative to the tab
-  
+  // Hide drag indicators on mobile
   .drag-indicator {
-    position: absolute;
-    width: 24px;
-    height: 4px;
-    background-color: rgba(255, 255, 255, 0.6);
-    border-radius: 2px;
-    transition: transform 0.3s ease;
-    
-    &.left {
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      animation: pulseLeft 2s infinite;
-    }
-    
-    &.right {
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      animation: pulseRight 2s infinite;
-    }
+    display: none;
   }
-}
+  
+  // Only show the home button when a panel is open
+  .mobile-menu-button {
+    display: flex;
+  }
 
-@keyframes pulseLeft {
-  0%, 100% { transform: translate(-50%, -50%); }
-  50% { transform: translate(-65%, -50%); }
-}
-
-@keyframes pulseRight {
-  0%, 100% { transform: translate(-50%, -50%); }
-  50% { transform: translate(-35%, -50%); }
+  body.panel-open .mobile-menu-button {
+    display: none;
+  }
 }
 </style>
