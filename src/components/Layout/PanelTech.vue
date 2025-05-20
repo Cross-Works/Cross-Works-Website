@@ -1,6 +1,6 @@
 <template>
   <div class="panel-tech">
-    <h1>Technology Solutions</h1>
+    <h1>Technology</h1>
     <div v-if="loading" class="loading">Loading technology information...</div>
     <div v-else-if="error" class="error">Error loading technology data</div>
     <div v-else class="tech-grid">

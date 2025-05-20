@@ -13,7 +13,7 @@ const { setTheme } = useTheme()
 
 
 onMounted(() => {
-  setTheme('xw-grey')
+  setTheme('xw-teal')
 })
 
 

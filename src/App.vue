@@ -13,6 +13,20 @@ const { setTheme } = useTheme()
 
 // State for side panels
 const activePanelSide = ref(null)
+const isDragging = ref(false)
+const startX = ref(0)
+const PANEL_WIDTH = 80 // Width in pixels of visible panel when closed
+
+// Panel control functions
+function openPanel(side) {
+  activePanelSide.value = side
+  document.body.classList.add('panel-open')
+}
+
+function closePanels() {
+  activePanelSide.value = null
+  document.body.classList.remove('panel-open')
+}
 
 // Add event listener for escape key
 const handleEscKey = (event) => {
@@ -21,17 +35,145 @@ const handleEscKey = (event) => {
   }
 }
 
-// Panel control functions
-function openPanel(side) {
-
-  activePanelSide.value = side
-  document.body.classList.add('panel-open')
+// Pointer start handler - works for both mouse and touch
+const handlePointerStart = (e, side) => {
+  // Don't start drag if panel is already open
+  if (activePanelSide.value !== null) return
+  
+  isDragging.value = side
+  // Safely access clientX for both mouse and touch events
+  startX.value = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0)
+  
+  // Use the appropriate event listeners based on device capability
+  if (window.PointerEvent) {
+    document.addEventListener('pointermove', handlePointerMove)
+    document.addEventListener('pointerup', handlePointerEnd)
+    document.addEventListener('pointercancel', handlePointerEnd)
+  } else {
+    // Fallback for browsers that don't support pointer events
+    document.addEventListener('mousemove', handlePointerMove)
+    document.addEventListener('touchmove', handlePointerMove)
+    document.addEventListener('mouseup', handlePointerEnd)
+    document.addEventListener('touchend', handlePointerEnd)
+    document.addEventListener('touchcancel', handlePointerEnd)
+  }
+  
+  // Prevent default to stop text selection
+  if (e.preventDefault) {
+    e.preventDefault()
+  }
 }
 
-function closePanels() {
+// Pointer move handler
+const handlePointerMove = (e) => {
+  if (!isDragging.value) return
+  
+  // Safely access clientX for both mouse and touch events
+  const currentX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0)
+  const deltaX = currentX - startX.value
+  
+  const panel = document.querySelector(`.side-panel.${isDragging.value}`)
+  if (!panel) return
+  
+  // Add dragging class to disable transitions
+  if (!panel.classList.contains('dragging')) {
+    panel.classList.add('dragging')
+  }
+  
+  const panelWidth = panel.offsetWidth
+  let percentMoved = (deltaX / panelWidth) * 100
+  let newPosition = 0
+  
+  if (isDragging.value === 'left') {
+    // Left panel: -100% when closed, 0% when open
+    // Positive deltaX moves right (toward open)
+    newPosition = Math.min(0, Math.max(-100, -100 + percentMoved))
+    
+    // Visual feedback
+    if (newPosition > -20) {
+      document.body.classList.add('panel-near-open')
+    } else {
+      document.body.classList.remove('panel-near-open')
+    }
+  } else {
+    // Right panel: 100% when closed, 0% when open
+    // Negative deltaX moves left (toward open)
+    newPosition = Math.max(0, Math.min(100, 100 + percentMoved))
+    
+    // Visual feedback
+    if (newPosition < 20) {
+      document.body.classList.add('panel-near-open')
+    } else {
+      document.body.classList.remove('panel-near-open')
+    }
+  }
+  
+  panel.style.transform = `translateX(${newPosition}%)`
+  
+  // Prevent default to stop scrolling
+  if (e.preventDefault) {
+    e.preventDefault()
+  }
+}
 
-  activePanelSide.value = null
-  document.body.classList.remove('panel-open')
+// Pointer end handler
+const handlePointerEnd = (e) => {
+  if (!isDragging.value) return
+  
+  const panel = document.querySelector(`.side-panel.${isDragging.value}`)
+  if (!panel) {
+    isDragging.value = false
+    return
+  }
+  
+  // Remove dragging class
+  panel.classList.remove('dragging')
+  
+  // Get the current transform value
+  const transform = panel.style.transform || ''
+  const match = transform.match(/translateX\(([-\d.]+)%\)/)
+  
+  if (match) {
+    const currentPos = parseFloat(match[1])
+    
+    // Clear the inline style
+    panel.style.transform = ''
+    
+    if (isDragging.value === 'left') {
+      // For left panel: if more than 50% open, fully open it
+      if (currentPos > -50) {
+        openPanel('left')
+      } else {
+        closePanels()
+      }
+    } else {
+      // For right panel: if more than 50% open, fully open it
+      if (currentPos < 50) {
+        openPanel('right')
+      } else {
+        closePanels()
+      }
+    }
+  } else {
+    // Default to closing if we can't determine position
+    closePanels()
+  }
+  
+  // Clean up event listeners
+  if (window.PointerEvent) {
+    document.removeEventListener('pointermove', handlePointerMove)
+    document.removeEventListener('pointerup', handlePointerEnd)
+    document.removeEventListener('pointercancel', handlePointerEnd)
+  } else {
+    document.removeEventListener('mousemove', handlePointerMove)
+    document.removeEventListener('touchmove', handlePointerMove)
+    document.removeEventListener('mouseup', handlePointerEnd)
+    document.removeEventListener('touchend', handlePointerEnd)
+    document.removeEventListener('touchcancel', handlePointerEnd)
+  }
+  
+  document.body.classList.remove('panel-near-open')
+  isDragging.value = false
 }
 
 // Lifecycle hooks for event handling
@@ -41,6 +183,19 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleEscKey)
+  
+  // Clean up all possible event listeners
+  if (window.PointerEvent) {
+    document.removeEventListener('pointermove', handlePointerMove)
+    document.removeEventListener('pointerup', handlePointerEnd)
+    document.removeEventListener('pointercancel', handlePointerEnd)
+  } else {
+    document.removeEventListener('mousemove', handlePointerMove)
+    document.removeEventListener('touchmove', handlePointerMove)
+    document.removeEventListener('mouseup', handlePointerEnd)
+    document.removeEventListener('touchend', handlePointerEnd)
+    document.removeEventListener('touchcancel', handlePointerEnd)
+  }
 })
 </script>
 
@@ -48,30 +203,38 @@ onBeforeUnmount(() => {
   <div class="app-container" :class="currentTheme">
     <div class="backdrop" :class="{ 'active': activePanelSide !== null }" @click="closePanels"></div>
     
-    <div class="side-panel left" :class="{ 
-        'active': activePanelSide === 'left',
-        'no-hover': activePanelSide !== null 
-      }" 
-      @click="activePanelSide === null && openPanel('left')">
-      <div class="panel-tab">
+    <!-- Left Panel (Cities) -->
+    <div 
+      class="side-panel left" 
+      :class="{ 'active': activePanelSide === 'left' }"
+    >
+      <div 
+        class="panel-tab" 
+        @pointerdown="(e) => handlePointerStart(e, 'left')"
+      >
         <span>Cities</span>
       </div>
       
-      <div class="panel-content" @click.stop>
+      <div class="panel-content">
+        <button class="close-btn" @click="closePanels">&times;</button>
         <PanelCities />
       </div>
     </div>
 
-    <div class="side-panel right" :class="{ 
-        'active': activePanelSide === 'right',
-        'no-hover': activePanelSide !== null 
-      }" 
-      @click="activePanelSide === null && openPanel('right')">
-      <div class="panel-tab">
+    <!-- Right Panel (Technology) -->
+    <div 
+      class="side-panel right" 
+      :class="{ 'active': activePanelSide === 'right' }"
+    >
+      <div 
+        class="panel-tab" 
+        @pointerdown="(e) => handlePointerStart(e, 'right')"
+      >
         <span>Technology</span>
       </div>
       
-      <div class="panel-content" @click.stop>
+      <div class="panel-content">
+        <button class="close-btn" @click="closePanels">&times;</button>
         <PanelTech />
       </div>
     </div>
@@ -94,7 +257,6 @@ onBeforeUnmount(() => {
         </main>
         
         <Footer />
-
       </div>
     </div>
   </div>
@@ -120,14 +282,13 @@ onBeforeUnmount(() => {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-
 }
 
 // Main content container
 .main-content {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 calc(5vw + $spacing-lg);
+  padding: 0 $spacing-xl;
   width: 100%;
   flex: 1;
   display: flex;
@@ -158,50 +319,35 @@ onBeforeUnmount(() => {
   }
 }
 
-// Side panels - always visible with tab
+// Side panels - always visible with tab and draggable
 .side-panel {
   position: fixed;
   top: 0;
   height: 100vh;
-  width: 95%;
+  // Panels take up full width minus space for both tabs on sides
+  width: calc(100% - 160px);
   background-color: var(--theme-bg);
   z-index: 100;
   box-shadow: 0 0 25px var(--theme-shadow);
-  cursor: pointer;
+  will-change: transform;
   
-  &.no-hover {
-    pointer-events: none;
+  &.dragging {
+    transition: none !important;
     
-    .panel-content, .panel-tab, .close-btn {
-      pointer-events: auto;
+    .panel-tab {
+      cursor: grabbing;
     }
-    
-    &::before {
-      display: none;
-    }
-  }
-  
-  &.left::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: -20vw; 
-    width: 20vw;
-    height: 100%;
-    z-index: -1;
-    pointer-events: all; 
-    background-color: rgba($color: pink, $alpha: .2);
   }
   
   &.left {
     left: 0;
-    transform: translateX(-95%);
+    transform: translateX(-100%);
     border-right: 8px solid var(--theme-panel-left);
     transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     
     .panel-tab {
       position: absolute;
-      right: -2px;
+      left: 100%;
       top: 50%;
       transform: translateY(-50%);
       writing-mode: vertical-lr;
@@ -210,51 +356,36 @@ onBeforeUnmount(() => {
       background: var(--theme-panel-left);
       color: var(--theme-secondary);
       font-weight: 600;
-      border-top-right-radius: 8px;
-      border-bottom-right-radius: 8px;
+   
       letter-spacing: 1px;
+      cursor: grab;
+      touch-action: none;
       
       span {
         transform: rotate(180deg);
-      }
-    }
-    
-    &:not(.no-hover):hover {
-      transform: translateX(-80%);
-      
-      .panel-tab {
-        padding-right: 16px;
-        box-shadow: 4px 0 12px var(--theme-shadow);
+        user-select: none;
       }
     }
     
     &.active {
       transform: translateX(0);
-      cursor: default;
     }
-  }
-  
-  &.right::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -20vw; 
-    width: 20vw;
-    height: 100%;
-    z-index: -1;
-    pointer-events: all;
-    background-color: rgba($color: pink, $alpha: .2);
+    
+    // When closed, only the tab sticks out
+    &:not(.active):not(.dragging) {
+      transform: translateX(-100%);
+    }
   }
   
   &.right {
     right: 0;
-    transform: translateX(95%);
+    transform: translateX(100%);
     border-left: 8px solid var(--theme-panel-right);
     transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     
     .panel-tab {
       position: absolute;
-      left: -2px;
+      right: 100%;
       top: 50%;
       transform: translateY(-50%);
       writing-mode: vertical-lr;
@@ -262,38 +393,39 @@ onBeforeUnmount(() => {
       background: var(--theme-panel-right);
       color: var(--theme-text);
       font-weight: 600;
-      border-top-left-radius: 8px;
-      border-bottom-left-radius: 8px;
+ 
       letter-spacing: 1px;
-    }
-    
-    &:not(.no-hover):hover {
-      transform: translateX(80%);
+      cursor: grab;
+      touch-action: none;
       
-      .panel-tab {
-        padding-left: 16px;
-        box-shadow: -4px 0 12px var(--theme-shadow);
+      span {
+        user-select: none;
       }
     }
     
     &.active {
       transform: translateX(0);
-      cursor: default;
+    }
+    
+    // When closed, only the tab sticks out
+    &:not(.active):not(.dragging) {
+      transform: translateX(100%);
     }
   }
   
   .panel-tab {
-    width: 5vw;
-    max-width: 60px;
-    height: 240px;
+    width: 80px;
+    max-width: 80px;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 18px;
     transition: all 0.3s;
-    box-shadow: 0 0 15px var(--theme-shadow);
+ 
     z-index: 101;
     text-transform: uppercase;
+    touch-action: none;
   }
   
   .panel-content {
@@ -302,6 +434,7 @@ onBeforeUnmount(() => {
     height: 100%;
     overflow-y: auto;
     cursor: default;
+    pointer-events: auto;
     
     h2 {
       margin-bottom: $spacing-xl;
@@ -361,9 +494,16 @@ onBeforeUnmount(() => {
   }
 }
 
-
-
-
+// Visual indicator for panel near open state
+:global(body.panel-near-open) .side-panel {
+  &.left.dragging .panel-tab {
+    box-shadow: 0 0 20px var(--theme-panel-left);
+  }
+  
+  &.right.dragging .panel-tab {
+    box-shadow: 0 0 20px var(--theme-panel-right);
+  }
+}
 
 // Loading state
 .loading {

@@ -1,6 +1,6 @@
 <template>
   <div class="panel-cities">
-    <h1>Our Cities</h1>
+    <h1>Cities</h1>
     <div v-if="loading" class="loading">Loading city information...</div>
     <div v-else-if="error" class="error">Error loading cities data</div>
     <div v-else class="cities-grid">

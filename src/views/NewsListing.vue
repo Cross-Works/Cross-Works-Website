@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import CardGrid from '../components/Cards/CardGrid.vue'
 import { useContent, provideContent } from '../composables/useContent'
 import useTheme from '../composables/useTheme'
@@ -24,5 +24,5 @@ onMounted(() => {
 
 
 // Get news cards from content
-const news = computed(() => content.cards.value?.news || [])
+//const news = computed(() => content.cards.value?.news || [])
 </script> 
