@@ -108,6 +108,7 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 @import '../assets/scss/variables';
+@import '../assets/scss/typography';
 
 .homepage {
   position: relative;
@@ -170,17 +171,19 @@ onBeforeUnmount(() => {
     margin-bottom: $spacing-xxl;
     
     h1 {
-      font-size: 80px;
-      font-weight: 300;
+
       color: $xw-teal-medium;
       margin: 0;
       line-height: 1;
+
+      @extend %h1-large;
     }
     
     .tagline {
       color: $xw-teal-light;
-      font-size: 18px;
       letter-spacing: 2px;
+
+      @extend %p;
     }
   }
   
@@ -188,10 +191,10 @@ onBeforeUnmount(() => {
     max-width: 600px;
     
     h2 {
-      font-size: 32px;
-      font-weight: normal;
+   
       margin-bottom: $spacing-sm;
       color: $xw-black;
+      @extend %h2;
     }
     
     .expertise {
@@ -227,6 +230,7 @@ onBeforeUnmount(() => {
       font-size: 20px;
       margin-bottom: $spacing-lg;
       color: $xw-black;
+      @extend %p;
     }
     
     .btn-primary {
@@ -261,9 +265,10 @@ onBeforeUnmount(() => {
   
   h2 {
     text-align: center;
-    font-size: 36px;
     margin-bottom: $spacing-xxl;
     color: $xw-black;
+
+    @extend %h2;
   }
   
   .services-grid {
@@ -287,6 +292,7 @@ onBeforeUnmount(() => {
         margin: 0;
         font-size: 18px;
         color: $xw-black;
+        @extend %h3;
       }
     }
   }
@@ -301,6 +307,7 @@ onBeforeUnmount(() => {
     font-size: 36px;
     margin-bottom: $spacing-lg;
     color: $xw-black;
+    @extend %h2;
   }
   
   p {
@@ -309,6 +316,7 @@ onBeforeUnmount(() => {
     font-size: 18px;
     line-height: 1.6;
     color: $xw-black;
+    @extend %p;
   }
   
   .we-are {
@@ -349,6 +357,7 @@ onBeforeUnmount(() => {
     font-size: 24px;
     margin-bottom: $spacing-lg;
     color: $xw-black;
+    
   }
   
   .btn-primary {
@@ -400,9 +409,7 @@ onBeforeUnmount(() => {
       font-size: 26px;
     }
     
-    p {
-      font-size: 20px;
-    }
+   
   }
   
   .side-panel .panel-tab {

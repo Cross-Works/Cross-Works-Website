@@ -27,11 +27,9 @@ export default {
 .site-header {
   padding: $spacing-lg 0;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
   align-items: center;
-  border: 1px red solid;
   text-align: center;
-  
-
 }
+
 </style>

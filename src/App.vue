@@ -17,6 +17,39 @@ const isDragging = ref(false)
 const startX = ref(0)
 const PANEL_WIDTH = 80 // Width in pixels of visible panel when closed
 
+// Mouse position tracking for panel hover effect
+const mouseX = ref(null)
+const windowWidth = ref(window.innerWidth)
+
+// Track window width for calculations
+const handleResize = () => {
+  windowWidth.value = window.innerWidth
+}
+
+// Left panel should preview if mouse is in left 20%
+const showLeftPreview = () => {
+  if (isDragging.value || activePanelSide.value !== null) return false
+  return mouseX.value !== null && mouseX.value < windowWidth.value * 0.2
+}
+
+// Right panel should preview if mouse is in right 20%
+const showRightPreview = () => {
+  if (isDragging.value || activePanelSide.value !== null) return false
+  return mouseX.value !== null && mouseX.value > windowWidth.value * 0.8
+}
+
+// Mouse move handler for the entire viewport
+const handleMouseMove = (e) => {
+  if (!isDragging.value) {
+    mouseX.value = e.clientX
+  }
+}
+
+// Mouse leave handler for the viewport
+const handleMouseLeave = () => {
+  mouseX.value = null
+}
+
 // Panel control functions
 function openPanel(side) {
   activePanelSide.value = side
@@ -37,12 +70,27 @@ const handleEscKey = (event) => {
 
 // Pointer start handler - works for both mouse and touch
 const handlePointerStart = (e, side) => {
-  // Don't start drag if panel is already open
-  if (activePanelSide.value !== null) return
+  // Allow dragging even when panel is open (to close it)
+  // We'll track the initial state to know if we're opening or closing
+  const isOpening = activePanelSide.value === null
+  const isDragToClose = activePanelSide.value === side
+  
+  // Only allow dragging the active panel or when no panel is active
+  if (activePanelSide.value !== null && activePanelSide.value !== side) return
   
   isDragging.value = side
+  
   // Safely access clientX for both mouse and touch events
   startX.value = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0)
+  
+  // Add dragging class immediately to disable transitions
+  const panel = document.querySelector(`.side-panel.${side}`)
+  if (panel) {
+    panel.classList.add('dragging')
+    
+    // Store initial position on the panel element
+    panel.dataset.initialState = isDragToClose ? 'open' : 'closed'
+  }
   
   // Use the appropriate event listeners based on device capability
   if (window.PointerEvent) {
@@ -75,19 +123,21 @@ const handlePointerMove = (e) => {
   const panel = document.querySelector(`.side-panel.${isDragging.value}`)
   if (!panel) return
   
-  // Add dragging class to disable transitions
-  if (!panel.classList.contains('dragging')) {
-    panel.classList.add('dragging')
-  }
-  
+  const isInitiallyOpen = panel.dataset.initialState === 'open'
   const panelWidth = panel.offsetWidth
   let percentMoved = (deltaX / panelWidth) * 100
   let newPosition = 0
   
   if (isDragging.value === 'left') {
-    // Left panel: -100% when closed, 0% when open
-    // Positive deltaX moves right (toward open)
-    newPosition = Math.min(0, Math.max(-100, -100 + percentMoved))
+    if (isInitiallyOpen) {
+      // If panel was initially open, negative deltaX means dragging left to close
+      // Starting from 0%, going to -100%
+      newPosition = Math.min(0, Math.max(-100, percentMoved))
+    } else {
+      // If panel was initially closed, positive deltaX means dragging right to open
+      // Starting from -100%, going to 0%
+      newPosition = Math.min(0, Math.max(-100, -100 + percentMoved))
+    }
     
     // Visual feedback
     if (newPosition > -20) {
@@ -96,9 +146,15 @@ const handlePointerMove = (e) => {
       document.body.classList.remove('panel-near-open')
     }
   } else {
-    // Right panel: 100% when closed, 0% when open
-    // Negative deltaX moves left (toward open)
-    newPosition = Math.max(0, Math.min(100, 100 + percentMoved))
+    if (isInitiallyOpen) {
+      // If panel was initially open, positive deltaX means dragging right to close
+      // Starting from 0%, going to 100%
+      newPosition = Math.max(0, Math.min(100, percentMoved))
+    } else {
+      // If panel was initially closed, negative deltaX means dragging left to open
+      // Starting from 100%, going to 0%
+      newPosition = Math.max(0, Math.min(100, 100 + percentMoved))
+    }
     
     // Visual feedback
     if (newPosition < 20) {
@@ -132,6 +188,7 @@ const handlePointerEnd = (e) => {
   // Get the current transform value
   const transform = panel.style.transform || ''
   const match = transform.match(/translateX\(([-\d.]+)%\)/)
+  const isInitiallyOpen = panel.dataset.initialState === 'open'
   
   if (match) {
     const currentPos = parseFloat(match[1])
@@ -140,24 +197,45 @@ const handlePointerEnd = (e) => {
     panel.style.transform = ''
     
     if (isDragging.value === 'left') {
-      // For left panel: if more than 50% open, fully open it
-      if (currentPos > -50) {
-        openPanel('left')
+      if (isInitiallyOpen) {
+        // For left panel when initially open: if moved more than 50% left, close it
+        if (currentPos < -50) {
+          closePanels()
+        } else {
+          openPanel('left')
+        }
       } else {
-        closePanels()
+        // For left panel when initially closed: if moved more than 50% right, open it
+        if (currentPos > -50) {
+          openPanel('left')
+        } else {
+          closePanels()
+        }
       }
     } else {
-      // For right panel: if more than 50% open, fully open it
-      if (currentPos < 50) {
-        openPanel('right')
+      if (isInitiallyOpen) {
+        // For right panel when initially open: if moved more than 50% right, close it
+        if (currentPos > 50) {
+          closePanels()
+        } else {
+          openPanel('right')
+        }
       } else {
-        closePanels()
+        // For right panel when initially closed: if moved more than 50% left, open it
+        if (currentPos < 50) {
+          openPanel('right')
+        } else {
+          closePanels()
+        }
       }
     }
   } else {
     // Default to closing if we can't determine position
     closePanels()
   }
+  
+  // Clean up
+  delete panel.dataset.initialState
   
   // Clean up event listeners
   if (window.PointerEvent) {
@@ -179,10 +257,17 @@ const handlePointerEnd = (e) => {
 // Lifecycle hooks for event handling
 onMounted(() => {
   document.addEventListener('keydown', handleEscKey)
+  document.addEventListener('mousemove', handleMouseMove)
+  document.addEventListener('mouseleave', handleMouseLeave)
+  window.addEventListener('resize', handleResize)
+  handleResize()
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleEscKey)
+  document.removeEventListener('mousemove', handleMouseMove)
+  document.removeEventListener('mouseleave', handleMouseLeave)
+  window.removeEventListener('resize', handleResize)
   
   // Clean up all possible event listeners
   if (window.PointerEvent) {
@@ -206,13 +291,18 @@ onBeforeUnmount(() => {
     <!-- Left Panel (Cities) -->
     <div 
       class="side-panel left" 
-      :class="{ 'active': activePanelSide === 'left' }"
+      :class="{ 
+        'active': activePanelSide === 'left',
+        'dragging': isDragging === 'left',
+        'preview': showLeftPreview()
+      }"
     >
       <div 
         class="panel-tab" 
         @pointerdown="(e) => handlePointerStart(e, 'left')"
       >
         <span>Cities</span>
+        <div v-if="activePanelSide === 'left'" class="drag-indicator left"></div>
       </div>
       
       <div class="panel-content">
@@ -224,13 +314,18 @@ onBeforeUnmount(() => {
     <!-- Right Panel (Technology) -->
     <div 
       class="side-panel right" 
-      :class="{ 'active': activePanelSide === 'right' }"
+      :class="{ 
+        'active': activePanelSide === 'right',
+        'dragging': isDragging === 'right',
+        'preview': showRightPreview()
+      }"
     >
       <div 
         class="panel-tab" 
         @pointerdown="(e) => handlePointerStart(e, 'right')"
       >
         <span>Technology</span>
+        <div v-if="activePanelSide === 'right'" class="drag-indicator right"></div>
       </div>
       
       <div class="panel-content">
@@ -333,6 +428,7 @@ onBeforeUnmount(() => {
   
   &.dragging {
     transition: none !important;
+    z-index: 102; // Ensure dragging panel is above everything
     
     .panel-tab {
       cursor: grabbing;
@@ -345,6 +441,11 @@ onBeforeUnmount(() => {
     border-right: 8px solid var(--theme-panel-left);
     transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     
+    &.preview:not(.active):not(.dragging) {
+      transform: translateX(-90%); // Show 10% of the panel when in preview mode
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
     .panel-tab {
       position: absolute;
       left: 100%;
@@ -356,14 +457,23 @@ onBeforeUnmount(() => {
       background: var(--theme-panel-left);
       color: var(--theme-secondary);
       font-weight: 600;
-   
       letter-spacing: 1px;
       cursor: grab;
       touch-action: none;
+      pointer-events: auto; // Ensure the tab can always be clicked/dragged
+      z-index: 101; // Make tabs above panels but below dragging panels
       
       span {
         transform: rotate(180deg);
         user-select: none;
+      }
+    }
+    
+    // When open, keep tab clickable
+    &.active .panel-tab {
+      cursor: grab;
+      &:hover {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
       }
     }
     
@@ -372,7 +482,7 @@ onBeforeUnmount(() => {
     }
     
     // When closed, only the tab sticks out
-    &:not(.active):not(.dragging) {
+    &:not(.active):not(.dragging):not(.preview) {
       transform: translateX(-100%);
     }
   }
@@ -382,6 +492,11 @@ onBeforeUnmount(() => {
     transform: translateX(100%);
     border-left: 8px solid var(--theme-panel-right);
     transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    
+    &.preview:not(.active):not(.dragging) {
+      transform: translateX(90%); // Show 10% of the panel when in preview mode
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
     
     .panel-tab {
       position: absolute;
@@ -393,13 +508,22 @@ onBeforeUnmount(() => {
       background: var(--theme-panel-right);
       color: var(--theme-text);
       font-weight: 600;
- 
       letter-spacing: 1px;
       cursor: grab;
       touch-action: none;
+      pointer-events: auto; // Ensure the tab can always be clicked/dragged
+      z-index: 101; // Make tabs above panels but below dragging panels
       
       span {
         user-select: none;
+      }
+    }
+    
+    // When open, keep tab clickable
+    &.active .panel-tab {
+      cursor: grab;
+      &:hover {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
       }
     }
     
@@ -408,7 +532,7 @@ onBeforeUnmount(() => {
     }
     
     // When closed, only the tab sticks out
-    &:not(.active):not(.dragging) {
+    &:not(.active):not(.dragging):not(.preview) {
       transform: translateX(100%);
     }
   }
@@ -422,7 +546,7 @@ onBeforeUnmount(() => {
     justify-content: center;
     font-size: 18px;
     transition: all 0.3s;
- 
+  
     z-index: 101;
     text-transform: uppercase;
     touch-action: none;
@@ -572,5 +696,43 @@ onBeforeUnmount(() => {
     font-size: 14px;
     height: 150px;
   }
+}
+
+// Add styles for drag indicator
+.panel-tab {
+  position: relative; // Ensure the indicator is positioned relative to the tab
+  
+  .drag-indicator {
+    position: absolute;
+    width: 24px;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 2px;
+    transition: transform 0.3s ease;
+    
+    &.left {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: pulseLeft 2s infinite;
+    }
+    
+    &.right {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: pulseRight 2s infinite;
+    }
+  }
+}
+
+@keyframes pulseLeft {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50% { transform: translate(-65%, -50%); }
+}
+
+@keyframes pulseRight {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50% { transform: translate(-35%, -50%); }
 }
 </style>
