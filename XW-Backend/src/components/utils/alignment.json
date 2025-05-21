@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_utils_alignments",
+  "info": {
+    "displayName": "Align",
+    "icon": "bulletList",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Align": {
+      "type": "enumeration",
+      "enum": [
+        "Left",
+        "Right",
+        "Auto"
+      ],
+      "default": "Left",
+      "required": true
+    }
+  }
+}

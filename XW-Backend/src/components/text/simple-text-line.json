@@ -1,0 +1,14 @@
+{
+  "collectionName": "components_text_simple_text_lines",
+  "info": {
+    "displayName": "Simple Text - Single Line",
+    "icon": "bold",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Text": {
+      "type": "string"
+    }
+  }
+}

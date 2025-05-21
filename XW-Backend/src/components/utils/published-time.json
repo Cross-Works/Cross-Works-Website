@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_utils_published_times",
+  "info": {
+    "displayName": "PublishedTime",
+    "icon": "clock"
+  },
+  "options": {},
+  "attributes": {
+    "PublishedDateTime": {
+      "type": "datetime"
+    }
+  }
+}

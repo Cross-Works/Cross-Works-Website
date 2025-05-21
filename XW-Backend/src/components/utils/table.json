@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_utils_tables",
+  "info": {
+    "displayName": "Table Row",
+    "icon": "bulletList",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Heading": {
+      "type": "component",
+      "repeatable": false,
+      "component": "text.simple-text-line"
+    },
+    "Description": {
+      "type": "component",
+      "repeatable": false,
+      "component": "text.simple-text-line"
+    },
+    "Foot": {
+      "type": "component",
+      "repeatable": false,
+      "component": "text.simple-text-line"
+    }
+  }
+}

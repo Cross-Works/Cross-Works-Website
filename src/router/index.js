@@ -39,6 +39,11 @@ const routes = [
     component: defineAsyncComponent(() => import('../components/Layout/PanelTech.vue'))
   },
   {
+    path: '/debug',
+    name: 'Debug',
+    component: defineAsyncComponent(() => import('../views/Debug.vue'))
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: defineAsyncComponent(() => import('../views/NotFound.vue'))

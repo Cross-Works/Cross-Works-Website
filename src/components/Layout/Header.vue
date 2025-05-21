@@ -1,8 +1,7 @@
 <template>
     <header class="site-header">
-    
-            <Navigation />
-        
+        <router-link to="/" class="logo">Logo</router-link>
+        <Navigation />
     </header>
 </template>
 

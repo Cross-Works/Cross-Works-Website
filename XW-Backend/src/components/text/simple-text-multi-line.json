@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_text_simple_text_multi_lines",
+  "info": {
+    "displayName": "Simple Text - Multi Line",
+    "icon": "bold"
+  },
+  "options": {},
+  "attributes": {
+    "Text": {
+      "type": "text"
+    }
+  }
+}

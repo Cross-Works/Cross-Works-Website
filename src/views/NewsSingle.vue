@@ -4,7 +4,7 @@
   <div v-else-if="article" class="single-news">
     <header>
       <h1>{{ article.title }}</h1>
-      <time v-if="article.publishedDate">{{ formatDate(article.publishedDate) }}</time>
+      <time v-if="article.publishedAt">{{ formatDate(article.publishedAt) }}</time>
     </header>
     
     <img 
@@ -15,11 +15,11 @@
     />
     
     <div class="article-content">
-      <template v-if="typeof article.description === 'string'">
-        <p>{{ article.description }}</p>
+      <template v-if="typeof article.content === 'string'">
+        <p>{{ article.content }}</p>
       </template>
       <template v-else>
-        <div v-for="(node, idx) in article.description" :key="idx">
+        <div v-for="(node, idx) in article.content" :key="idx">
           <p v-if="node.type === 'paragraph'">
             {{ getNodeText(node) }}
           </p>
@@ -40,17 +40,26 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import useFetch from '../composables/useFetch'
+import { useFetch } from '../composables/useFetch'
 
-const STRAPI_BASE = import.meta.env.VITE_STRAPI_URL?.replace(/\/$/, '') ?? ''
+const STRAPI_URL = import.meta.env.VITE_STRAPI_URL || 'http://localhost:1337'
 const route = useRoute()
 const articleId = computed(() => route.params.docId)
 
 // Fetch the specific article
-const { data, loading, error } = useFetch(`http://localhost:1337/api/cards/${articleId.value}?populate=*`)
+const { data, loading, error } = useFetch(`/api/posts/${articleId.value}?populate=*`)
 
 // Extract article from response
-const article = computed(() => data.value?.data)
+const article = computed(() => {
+  if (!data.value?.data) return null
+  const attrs = data.value.data.attributes
+  return {
+    ...attrs,
+    id: data.value.data.id,
+    image: attrs.image?.data?.attributes,
+    categories: attrs.categories?.data?.map(cat => cat.attributes) || []
+  }
+})
 
 // Format date for display
 const formatDate = (dateString) => {
@@ -64,7 +73,8 @@ const formatDate = (dateString) => {
 
 // Helper to get image URL
 const getImageUrl = (image) => {
-  return image.url.startsWith('http') ? image.url : `${STRAPI_BASE}${image.url}`
+  if (!image?.url) return ''
+  return image.url.startsWith('http') ? image.url : `${STRAPI_URL}${image.url}`
 }
 
 // Helper to extract text from rich text nodes

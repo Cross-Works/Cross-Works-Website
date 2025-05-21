@@ -1,0 +1,20 @@
+{
+  "collectionName": "components_blocks_text_blocks",
+  "info": {
+    "displayName": "Text Block",
+    "icon": "apps"
+  },
+  "options": {},
+  "attributes": {
+    "Heading": {
+      "type": "component",
+      "repeatable": false,
+      "component": "text.simple-text-line"
+    },
+    "Body": {
+      "type": "component",
+      "repeatable": false,
+      "component": "text.rich-text"
+    }
+  }
+}

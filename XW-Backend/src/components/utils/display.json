@@ -1,0 +1,14 @@
+{
+  "collectionName": "components_utils_displays",
+  "info": {
+    "displayName": "Display",
+    "icon": "bulletList"
+  },
+  "options": {},
+  "attributes": {
+    "Display": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

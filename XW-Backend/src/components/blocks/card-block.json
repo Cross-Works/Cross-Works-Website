@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_blocks_card_blocks",
+  "info": {
+    "displayName": "Card block",
+    "icon": "apps",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Thumbnail": {
+      "type": "component",
+      "repeatable": false,
+      "component": "media.image"
+    },
+    "Content": {
+      "type": "component",
+      "repeatable": false,
+      "component": "blocks.text-block"
+    },
+    "Link": {
+      "type": "component",
+      "repeatable": false,
+      "component": "utils.link"
+    }
+  }
+}

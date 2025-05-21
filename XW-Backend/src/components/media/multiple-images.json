@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_media_multiple_images",
+  "info": {
+    "displayName": "Multiple Images",
+    "icon": "picture"
+  },
+  "options": {},
+  "attributes": {
+    "Media": {
+      "type": "component",
+      "repeatable": true,
+      "component": "media.image"
+    }
+  }
+}

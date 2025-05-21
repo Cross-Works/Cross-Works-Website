@@ -12,28 +12,28 @@
     ]"
   >
     <img
-      v-if="card.image"
+      v-if="imageUrl"
       :src="imageUrl"
-      :alt="card.image.alternativeText || ''"
+      :alt="card.image?.data?.attributes?.alternativeText || ''"
       style="width: 100%; height: 160px; object-fit: cover"
     />
 
     <div style="padding: 12px">
       <p
-        v-if="showDate && card.publishedDate"
+        v-if="showDate && card.publishedAt"
         style="margin: 0; font-size: 12px; color: #666"
       >
-        {{ formatDate(card.publishedDate) }}
+        {{ formatDate(card.publishedAt) }}
       </p>
       <h3 style="margin: 8px 0 0; font-size: 16px">{{ card.title }}</h3>
-      <div v-if="showDescription && card.description">
-        <template v-if="typeof card.description === 'string'">
+      <div v-if="showDescription && card.content">
+        <template v-if="typeof card.content === 'string'">
           <p style="margin: 8px 0 0; font-size: 14px; color: #444">
-            {{ card.description }}
+            {{ card.content }}
           </p>
         </template>
         <template v-else>
-          <div v-for="(node, idx) in card.description" :key="idx">
+          <div v-for="(node, idx) in card.content" :key="idx">
             <p
               v-if="node.type === 'paragraph'"
               style="margin: 8px 0 0; font-size: 14px; color: #444"
@@ -51,7 +51,7 @@
 import { defineProps, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
-const STRAPI_BASE = import.meta.env.VITE_STRAPI_URL?.replace(/\/$/, '') ?? ''
+const STRAPI_URL = import.meta.env.VITE_STRAPI_URL || 'http://localhost:1337'
 
 const props = defineProps({
   card: {
@@ -79,15 +79,14 @@ const props = defineProps({
 const router = useRouter()
 
 const imageUrl = computed(() => {
-  if (!props.card.image) return ''
-  return props.card.image.url.startsWith('http') 
-    ? props.card.image.url 
-    : `${STRAPI_BASE}${props.card.image.url}`
+  const image = props.card.image?.data?.attributes
+  if (!image?.url) return ''
+  return image.url.startsWith('http') ? image.url : `${STRAPI_URL}${image.url}`
 })
 
 const handleClick = () => {
-  if (props.linkPrefix && props.card.link?.documentId) {
-    router.push(`${props.linkPrefix}${props.card.link.documentId}`)
+  if (props.linkPrefix && props.card.id) {
+    router.push(`${props.linkPrefix}${props.card.id}`)
   }
 }
 

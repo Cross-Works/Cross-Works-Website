@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_shared_footers",
+  "info": {
+    "displayName": "Footer",
+    "icon": "bulletList",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Column": {
+      "type": "component",
+      "repeatable": true,
+      "component": "utils.column"
+    }
+  }
+}

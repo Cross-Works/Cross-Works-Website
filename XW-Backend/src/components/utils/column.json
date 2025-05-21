@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_utils_columns",
+  "info": {
+    "displayName": "Column",
+    "icon": "bulletList",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Heading": {
+      "type": "string"
+    },
+    "Body": {
+      "type": "text"
+    },
+    "Link": {
+      "type": "component",
+      "repeatable": false,
+      "component": "utils.link"
+    },
+    "Socials": {
+      "type": "component",
+      "repeatable": false,
+      "component": "utils.show-socials"
+    }
+  }
+}

@@ -6,15 +6,10 @@ import { currentTheme } from './store/themeState'
 import NavigationMobile from './components/NavigationMobile.vue'
 import Header from './components/Layout/Header.vue'
 import Footer from './components/Layout/Footer.vue'
+import { useGlobal } from './composables/useGlobal'
 
-/**
- * Shared constants
- */
-const TAB_WIDTH = 80
+const globalData = useGlobal()
 
-/**
- * Reactive state
- */
 const activePanelSide = ref<null | 'left' | 'right'>(null)
 const dragSide = ref<null | 'left' | 'right'>(null)
 const isDragging = computed(() => dragSide.value !== null)

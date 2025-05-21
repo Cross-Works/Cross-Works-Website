@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_text_rich_text_markdowns",
+  "info": {
+    "displayName": "Rich Text - Markdown",
+    "icon": "bold"
+  },
+  "options": {},
+  "attributes": {
+    "Text": {
+      "type": "richtext"
+    }
+  }
+}

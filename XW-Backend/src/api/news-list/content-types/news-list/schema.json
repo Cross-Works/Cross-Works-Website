@@ -1,0 +1,22 @@
+{
+  "kind": "singleType",
+  "collectionName": "news_lists",
+  "info": {
+    "singularName": "news-list",
+    "pluralName": "news-lists",
+    "displayName": "News",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title"
+    }
+  }
+}

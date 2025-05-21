@@ -385,8 +385,13 @@ export interface ApiAboutAbout extends Struct.SingleTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
-    blocks: Schema.Attribute.DynamicZone<
-      ['shared.media', 'shared.quote', 'shared.rich-text', 'shared.slider']
+    Content: Schema.Attribute.DynamicZone<
+      [
+        'text.rich-text',
+        'media.multiple-images',
+        'media.image',
+        'blocks.text-and-image-block',
+      ]
     >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -395,6 +400,7 @@ export interface ApiAboutAbout extends Struct.SingleTypeSchema {
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::about.about'> &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
+    Slug: Schema.Attribute.UID<'title'>;
     title: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -402,141 +408,30 @@ export interface ApiAboutAbout extends Struct.SingleTypeSchema {
   };
 }
 
-export interface ApiCardCard extends Struct.CollectionTypeSchema {
-  collectionName: 'cards';
+export interface ApiContactContact extends Struct.SingleTypeSchema {
+  collectionName: 'contacts';
   info: {
     description: '';
-    displayName: 'Card';
-    pluralName: 'cards';
-    singularName: 'card';
+    displayName: 'Contact';
+    pluralName: 'contacts';
+    singularName: 'contact';
   };
   options: {
     draftAndPublish: true;
   };
   attributes: {
-    categories: Schema.Attribute.Relation<
-      'manyToMany',
-      'api::category.category'
-    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    description: Schema.Attribute.Blocks;
-    image: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
-    link: Schema.Attribute.Relation<'oneToOne', 'api::single-news.single-news'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<'oneToMany', 'api::card.card'> &
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::contact.contact'
+    > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
-    publishedDate: Schema.Attribute.Date;
-    slug: Schema.Attribute.UID;
+    slug: Schema.Attribute.UID<'title'>;
     title: Schema.Attribute.String;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
-export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
-  collectionName: 'categories';
-  info: {
-    description: 'Organize your content into categories';
-    displayName: 'Category';
-    pluralName: 'categories';
-    singularName: 'category';
-  };
-  options: {
-    draftAndPublish: false;
-  };
-  attributes: {
-    cards: Schema.Attribute.Relation<'manyToMany', 'api::card.card'>;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    description: Schema.Attribute.Text;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::category.category'
-    > &
-      Schema.Attribute.Private;
-    name: Schema.Attribute.String;
-    publishedAt: Schema.Attribute.DateTime;
-    slug: Schema.Attribute.UID;
-    text_media_blocks: Schema.Attribute.Relation<
-      'manyToMany',
-      'api::text-media-block.text-media-block'
-    >;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
-export interface ApiContactSectionContactSection
-  extends Struct.CollectionTypeSchema {
-  collectionName: 'contact_sections';
-  info: {
-    description: '';
-    displayName: 'Contact-Section';
-    pluralName: 'contact-sections';
-    singularName: 'contact-section';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    contactItems: Schema.Attribute.Component<'shared.contact-item', true>;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    description: Schema.Attribute.Blocks;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::contact-section.contact-section'
-    > &
-      Schema.Attribute.Private;
-    phoneNumber: Schema.Attribute.String;
-    publishedAt: Schema.Attribute.DateTime;
-    title: Schema.Attribute.String;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
-export interface ApiFooterFooter extends Struct.CollectionTypeSchema {
-  collectionName: 'footers';
-  info: {
-    displayName: 'Footer';
-    pluralName: 'footers';
-    singularName: 'footer';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    addressLine1: Schema.Attribute.String;
-    addressLine2: Schema.Attribute.String;
-    contactEmail: Schema.Attribute.Email;
-    contactHours: Schema.Attribute.String;
-    contactPhone: Schema.Attribute.String;
-    contactTitle: Schema.Attribute.String;
-    copyrightText: Schema.Attribute.Text;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    findTitle: Schema.Attribute.String;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::footer.footer'
-    > &
-      Schema.Attribute.Private;
-    mapLink: Schema.Attribute.String;
-    publishedAt: Schema.Attribute.DateTime;
-    socialLinks: Schema.Attribute.Component<'shared.social-link', true>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -560,12 +455,14 @@ export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
       Schema.Attribute.Private;
     defaultSeo: Schema.Attribute.Component<'shared.seo', false>;
     favicon: Schema.Attribute.Media<'images' | 'files' | 'videos'>;
+    Footer: Schema.Attribute.Component<'shared.footer', false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::global.global'
     > &
       Schema.Attribute.Private;
+    Navigation: Schema.Attribute.Component<'shared.navigation', false>;
     publishedAt: Schema.Attribute.DateTime;
     siteDescription: Schema.Attribute.Text & Schema.Attribute.Required;
     siteName: Schema.Attribute.String & Schema.Attribute.Required;
@@ -575,30 +472,57 @@ export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
   };
 }
 
-export interface ApiProjectAwardProjectAward
-  extends Struct.CollectionTypeSchema {
-  collectionName: 'project_awards';
+export interface ApiHomepageHomepage extends Struct.SingleTypeSchema {
+  collectionName: 'homepages';
   info: {
-    displayName: 'Project-Awards';
-    pluralName: 'project-awards';
-    singularName: 'project-award';
+    description: '';
+    displayName: 'Homepage';
+    pluralName: 'homepages';
+    singularName: 'homepage';
   };
   options: {
     draftAndPublish: true;
   };
   attributes: {
-    award: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    description: Schema.Attribute.Blocks;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
-      'api::project-award.project-award'
+      'api::homepage.homepage'
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiNewsListNewsList extends Struct.SingleTypeSchema {
+  collectionName: 'news_lists';
+  info: {
+    description: '';
+    displayName: 'News';
+    pluralName: 'news-lists';
+    singularName: 'news-list';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::news-list.news-list'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    slug: Schema.Attribute.UID<'title'>;
     title: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -606,79 +530,36 @@ export interface ApiProjectAwardProjectAward
   };
 }
 
-export interface ApiSingleNewsSingleNews extends Struct.CollectionTypeSchema {
-  collectionName: 'news';
+export interface ApiPostPost extends Struct.CollectionTypeSchema {
+  collectionName: 'posts';
   info: {
     description: '';
-    displayName: 'Single-News';
-    pluralName: 'news';
-    singularName: 'single-news';
+    displayName: 'News';
+    pluralName: 'posts';
+    singularName: 'post';
   };
   options: {
     draftAndPublish: true;
   };
   attributes: {
+    Author: Schema.Attribute.Relation<'oneToOne', 'admin::user'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    featuredImage: Schema.Attribute.Media<
-      'images' | 'files' | 'videos' | 'audios'
-    >;
-    featuredImage2: Schema.Attribute.Media<
-      'images' | 'files' | 'videos' | 'audios'
+    Items: Schema.Attribute.DynamicZone<
+      [
+        'text.rich-text',
+        'media.image',
+        'blocks.text-and-image-block',
+        'media.multiple-images',
+      ]
     >;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::single-news.single-news'
-    > &
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::post.post'> &
       Schema.Attribute.Private;
-    newsContent: Schema.Attribute.Blocks;
-    newsShortText: Schema.Attribute.Blocks;
     publishedAt: Schema.Attribute.DateTime;
-    publishedDate: Schema.Attribute.Date;
-    shareLink: Schema.Attribute.String;
-    slug: Schema.Attribute.UID;
-    title: Schema.Attribute.String;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
-export interface ApiTextMediaBlockTextMediaBlock
-  extends Struct.CollectionTypeSchema {
-  collectionName: 'text_media_blocks';
-  info: {
-    description: '';
-    displayName: 'Text-Media-Blocks';
-    pluralName: 'text-media-blocks';
-    singularName: 'text-media-block';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    categories: Schema.Attribute.Relation<
-      'manyToMany',
-      'api::category.category'
-    >;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    Description: Schema.Attribute.Blocks;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::text-media-block.text-media-block'
-    > &
-      Schema.Attribute.Private;
-    Media: Schema.Attribute.Media<
-      'images' | 'files' | 'videos' | 'audios',
-      true
-    >;
-    publishedAt: Schema.Attribute.DateTime;
-    Title: Schema.Attribute.String & Schema.Attribute.Required;
+    Slug: Schema.Attribute.UID<'Title'>;
+    Title: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1195,14 +1076,11 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::about.about': ApiAboutAbout;
-      'api::card.card': ApiCardCard;
-      'api::category.category': ApiCategoryCategory;
-      'api::contact-section.contact-section': ApiContactSectionContactSection;
-      'api::footer.footer': ApiFooterFooter;
+      'api::contact.contact': ApiContactContact;
       'api::global.global': ApiGlobalGlobal;
-      'api::project-award.project-award': ApiProjectAwardProjectAward;
-      'api::single-news.single-news': ApiSingleNewsSingleNews;
-      'api::text-media-block.text-media-block': ApiTextMediaBlockTextMediaBlock;
+      'api::homepage.homepage': ApiHomepageHomepage;
+      'api::news-list.news-list': ApiNewsListNewsList;
+      'api::post.post': ApiPostPost;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

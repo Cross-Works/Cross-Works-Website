@@ -15,9 +15,18 @@
     "title": {
       "type": "string"
     },
-    "blocks": {
+    "Content": {
       "type": "dynamiczone",
-      "components": ["shared.media", "shared.quote", "shared.rich-text", "shared.slider"]
+      "components": [
+        "text.rich-text",
+        "media.multiple-images",
+        "media.image",
+        "blocks.text-and-image-block"
+      ]
+    },
+    "Slug": {
+      "type": "uid",
+      "targetField": "title"
     }
   }
 }

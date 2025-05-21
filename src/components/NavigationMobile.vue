@@ -26,25 +26,30 @@
                 'home-active': activePanelSide !== null
             }"
         >
-            <div v-if="!menuOpen && activePanelSide === null" class="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <div v-else-if="menuOpen && activePanelSide === null" class="close">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </div>
-            <div v-else class="home-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                </svg>
-            </div>
+            <template v-if="menuOpen">
+                <div class="close">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 6 6 18M6 6l12 12"/>
+                    </svg>
+                </div>
+            </template>
+            <template v-else-if="activePanelSide !== null">
+                <div class="home-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M19 21H5a1 1 0 0 1-1-1v-9H1l11-9 11 9h-3v9a1 1 0 0 1-1 1zm-6-2h5v-8.5l-5-4-5 4V19h5z"/>
+                    </svg>
+                </div>
+            </template>
+            <template v-else>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </template>
         </button>
         
-        <!-- Tech button (right) -->
+        <!-- Technology button (right) -->
         <button 
             @click="$emit('togglePanel', 'right')" 
             class="nav-button tech-button"
@@ -53,17 +58,25 @@
                 'circle': menuOpen || (activePanelSide !== null && activePanelSide !== 'right')
             }"
         >
-            <span class="button-text" :class="{ 'hidden': menuOpen || (activePanelSide !== null && activePanelSide !== 'right') }">Tech</span>
+            <span class="button-text" :class="{ 'hidden': menuOpen || (activePanelSide !== null && activePanelSide !== 'right') }">Technology</span>
         </button>
         
-        <!-- Mobile Menu Content -->
         <div class="mobile-menu" :class="{ 'active': menuOpen }">
             <nav>
                 <ul>
-                    <li><router-link to="/" @click="$emit('toggleMenu')">Home</router-link></li>
-                    <li><router-link to="/about" @click="$emit('toggleMenu')">About</router-link></li>
-                    <li><router-link to="/news" @click="$emit('toggleMenu')">News</router-link></li>
-                    <li><router-link to="/contact" @click="$emit('toggleMenu')">Contact</router-link></li>
+                    <template v-if="links && links.length">
+                        <li v-for="(link, index) in links" :key="index">
+                            <a v-if="link.isExternal" :href="link.url" target="_blank" rel="noopener" @click="$emit('toggleMenu')">{{ link.text }}</a>
+                            <router-link v-else :to="link.url" @click="$emit('toggleMenu')">{{ link.text }}</router-link>
+                        </li>
+                    </template>
+                    <template v-else>
+                        <!-- Fallback navigation -->
+                        <li><router-link to="/" @click="$emit('toggleMenu')">Home</router-link></li>
+                        <li><router-link to="/about" @click="$emit('toggleMenu')">About</router-link></li>
+                        <li><router-link to="/news" @click="$emit('toggleMenu')">News</router-link></li>
+                        <li><router-link to="/contact" @click="$emit('toggleMenu')">Contact</router-link></li>
+                    </template>
                 </ul>
             </nav>
         </div>
@@ -72,6 +85,7 @@
 
 <script setup>
 import { defineProps, defineEmits } from 'vue';
+import { useNavigation } from '../composables/useNavigation';
 
 const props = defineProps({
     menuOpen: {
@@ -85,6 +99,9 @@ const props = defineProps({
 });
 
 defineEmits(['toggleMenu', 'togglePanel', 'closePanels']);
+
+// Get navigation links using our specialized composable
+const { links } = useNavigation();
 </script>
 
 <style lang="scss" scoped>

@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_utils_social_links",
+  "info": {
+    "displayName": "Social Link",
+    "icon": "globe"
+  },
+  "options": {},
+  "attributes": {
+    "Text": {
+      "type": "string"
+    },
+    "Url": {
+      "type": "string"
+    }
+  }
+}

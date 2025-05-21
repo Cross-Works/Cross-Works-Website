@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_utils_show_socials",
+  "info": {
+    "displayName": "ShowSocials",
+    "icon": "bulletList",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "ShowSocials": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_utils_button_styles",
+  "info": {
+    "displayName": "Button Style",
+    "icon": "brush"
+  },
+  "options": {},
+  "attributes": {
+    "ButtonStyle": {
+      "type": "enumeration",
+      "enum": [
+        "Primary",
+        "Secondary",
+        "Link",
+        "Auto"
+      ]
+    }
+  }
+}

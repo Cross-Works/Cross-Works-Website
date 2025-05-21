@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_utils_links",
+  "info": {
+    "displayName": "Internal Link",
+    "icon": "link",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Text": {
+      "type": "string"
+    },
+    "Slug": {
+      "type": "string",
+      "regex": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    }
+  }
+}

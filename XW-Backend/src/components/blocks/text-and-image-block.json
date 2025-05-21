@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_blocks_text_and_image_blocks",
+  "info": {
+    "displayName": "Text and Media Block",
+    "icon": "apps",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Media": {
+      "type": "component",
+      "repeatable": false,
+      "component": "media.image"
+    },
+    "Text": {
+      "type": "component",
+      "repeatable": false,
+      "component": "text.rich-text"
+    },
+    "MediaPosition": {
+      "type": "component",
+      "repeatable": false,
+      "component": "utils.alignment"
+    }
+  }
+}
