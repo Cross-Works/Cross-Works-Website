@@ -7,9 +7,17 @@
           <router-link v-else :to="link.url">{{ link.text }}</router-link>
         </li>
       </template>
+      <template v-else-if="loading">
+        <li>Loading navigation...</li>
+      </template>
+      <template v-else-if="error">
+        <li>Error loading navigation</li>
+      </template>
       <template v-else>
         <!-- Fallback navigation if no data from API -->
-        Failed
+        <li><router-link to="/">Home</router-link></li>
+        <li><router-link to="/about">About</router-link></li>
+        <li><router-link to="/contact">Contact</router-link></li>
       </template>
     </ul>
   </nav>
@@ -17,9 +25,17 @@
 
 <script setup>
 import { useNavigation } from '../composables/useNavigation'
+import { onMounted } from 'vue'
 
 // Get navigation links using our specialized composable
-const { links } = useNavigation()
+const { links, loading, error, rawData } = useNavigation()
+
+// Debugging on mount
+onMounted(() => {
+  console.log('Navigation component mounted')
+  console.log('Links available:', links.value)
+  console.log('Raw data:', rawData.value)
+})
 </script>
 
 <style lang="scss" scoped>

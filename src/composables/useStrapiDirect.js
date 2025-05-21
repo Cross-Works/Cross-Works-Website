@@ -2,6 +2,7 @@ import { ref, watchEffect } from 'vue'
 import axios from 'axios'
 
 const API_URL = import.meta.env.VITE_STRAPI_URL || 'http://localhost:1337'
+const API_KEY = import.meta.env.VITE_STRAPI_API_KEY || null
 
 /**
  * Direct access to Strapi API for debugging
@@ -18,18 +19,22 @@ export function useStrapiDirect(endpoint, options = {}) {
     error.value = null
     
     try {
-      console.log(`Fetching from: ${API_URL}${endpoint}`)
+      const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+      
+      // Add API key if available
+      if (API_KEY) {
+        headers['Authorization'] = `Bearer ${API_KEY}`
+      }
+      
       const response = await axios.get(`${API_URL}${endpoint}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers
-        },
+        headers,
         params: options.params || {}
       })
       data.value = response.data
-      console.log('API Response:', response.data)
     } catch (err) {
-      console.error('Strapi API error:', err)
       error.value = err.response?.data?.error || err.message
     } finally {
       loading.value = false

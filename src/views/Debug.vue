@@ -10,7 +10,7 @@
           id="endpoint" 
           v-model="apiEndpoint" 
           class="input" 
-          placeholder="/api/global?populate=deep"
+          placeholder="/api/global?populate[Navigation][populate][Link]=*"
         />
         <button @click="fetchApi" class="button" :disabled="apiLoading">
           {{ apiLoading ? 'Loading...' : 'Fetch' }}
@@ -72,7 +72,7 @@ import { useNavigation } from '../composables/useNavigation'
 const { navigation, siteInfo, loading, error, dataStructure } = useGlobalData()
 
 // Direct API testing
-const apiEndpoint = ref('/api/global?populate=deep')
+const apiEndpoint = ref('/api/global?populate[Navigation][populate][Link]=*')
 const { data: apiData, error: apiError, loading: apiLoading, refetch: fetchApi } = useStrapiDirect(apiEndpoint.value)
 
 // Get navigation data from dedicated composable

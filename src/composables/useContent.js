@@ -3,35 +3,6 @@ import { useFetch } from './useFetch'
 
 const ContentSymbol = Symbol('content')
 
-// Mock data for development
-const MOCK_POSTS_DATA = {
-  data: [
-    {
-      id: 1,
-      attributes: {
-        title: "Mock Post 1",
-        content: "This is a mock post for development",
-        publishedAt: "2023-04-15T10:00:00.000Z",
-        categories: [
-          { slug: "news" },
-          { slug: "tech" }
-        ]
-      }
-    },
-    {
-      id: 2,
-      attributes: {
-        title: "Mock Post 2",
-        content: "Another mock post for development",
-        publishedAt: "2023-05-20T14:30:00.000Z",
-        categories: [
-          { slug: "news" }
-        ]
-      }
-    }
-  ]
-};
-
 /**
  * Groups items by their category slug
  * @template T
@@ -60,11 +31,9 @@ function groupByCategory(items) {
 }
 
 export function provideContent() {
-  // Fetch data from Strapi with fallback mock data
+  // Fetch data from Strapi
   const { data: cardData, loading: loadingCards, error: errorCards } = 
-    useFetch('http://localhost:1337/api/posts?populate=*', {
-      fallbackData: MOCK_POSTS_DATA
-    })
+    useFetch('/api/posts?populate=*')
   
   // Since text-media-blocks doesn't exist in new backend, use empty data
   const blockData = ref({ data: [] })

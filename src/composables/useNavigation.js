@@ -1,33 +1,13 @@
 import { ref, computed } from 'vue'
 import { useFetch } from './useFetch'
 
-// Mock navigation data for development
-const MOCK_NAVIGATION = [
-  { Text: "Home", Slug: "home" },
-  { Text: "About", Slug: "about" },
-  { Text: "News", Slug: "news" },
-  { Text: "Contact", Slug: "contact" }
-]
-
 /**
  * Composable to fetch and manage navigation links
  * Supports both the internal links structure (Text/Slug) and standard links
  */
 export function useNavigation() {
-  // Pass fallback data for development environments
-  const { data, loading, error } = useFetch('/api/global?populate=deep', {
-    fallbackData: {
-      data: {
-        attributes: {
-          Navigation: {
-            Link: MOCK_NAVIGATION
-          }
-        }
-      }
-    }
-  })
-
-  console.log('Fetching navigation data from Strapi:', useFetch('/api/global?populate=*') )
+  // Fetch navigation data from Strapi using v5 populate syntax
+  const { data, loading, error } = useFetch('/api/global?populate[Navigation][populate][Link]=*')
   
   /**
    * Format a slug into a proper URL path
@@ -71,27 +51,19 @@ export function useNavigation() {
    * Extract navigation links from various possible paths in the response
    */
   const links = computed(() => {
-    // If we're in development and have no data, use the mock data
-    if (import.meta.env.DEV && (!data.value || error.value)) {
-      console.warn('Using mock navigation data in development mode')
-      return processLinks(MOCK_NAVIGATION)
-    }
-    
     if (!data.value) return []
     
-    console.log('Navigation data response:', data.value)
+    console.log('Raw Strapi v5 response:', data.value)
     
-    // Try different possible paths for navigation data
+    // Try different possible paths for Strapi v5 navigation data
     const paths = [
-      // Strapi v4 paths
-      () => data.value.data.attributes.Navigation.Link,
-      () => data.value.data.attributes.Navigation,
-      // Direct paths
-      () => data.value.data.Navigation,
+      // Strapi v5 paths
+      () => data.value.data?.attributes?.Navigation?.Link,
+      () => data.value.data?.attributes?.Navigation?.data?.attributes?.Link,
+      // Alternative common paths
+      () => data.value.data?.attributes?.Navigation,
+      () => data.value.data?.Navigation,
       () => data.value.Navigation,
-      // Other possible paths
-      () => data.value.data.attributes.menu?.items,
-      () => data.value.data.attributes.navigationLinks
     ]
     
     let navLinks = null
@@ -99,21 +71,32 @@ export function useNavigation() {
       try {
         const result = pathFn()
         if (result) {
-          navLinks = Array.isArray(result) ? result : (result.Link || result.links || [])
           console.log('Found navigation at path:', result)
-          break
+          
+          // Handle both array and object structures
+          if (Array.isArray(result)) {
+            navLinks = result
+          } else if (typeof result === 'object') {
+            navLinks = result.Link || result.links || []
+          }
+          
+          if (navLinks && navLinks.length) {
+            break
+          }
         }
       } catch (e) {
         // Path doesn't exist, continue to next one
       }
     }
     
-    if (!navLinks) {
-      console.warn('Navigation data not found in response, using fallback')
-      return processLinks(MOCK_NAVIGATION)
+    if (!navLinks || !navLinks.length) {
+      console.error('Navigation data not found in response structure', data.value)
+      return []
     }
     
-    return processLinks(navLinks)
+    const processedLinks = processLinks(navLinks)
+    console.log('Processed navigation links:', processedLinks)
+    return processedLinks
   })
   
   // Return all the data and utility functions

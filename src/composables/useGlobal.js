@@ -10,13 +10,7 @@ export const GlobalSymbol = Symbol('global')
  */
 export function useGlobal() {
   // Fetch global data from Strapi
-  const { data, loading, error } = useFetch('/api/global?populate=deep')
-  
-  // Debug the data structure
-  const dataStructure = computed(() => {
-    console.log('Global data:', data.value)
-    return data.value
-  })
+  const { data, loading, error } = useFetch('/api/global?populate=*')
   
   // Extract navigation links from the response with more flexible path handling
   const navigation = computed(() => {
@@ -50,11 +44,8 @@ export function useGlobal() {
     }
     
     if (!navLinks) {
-      console.log('Navigation data not found. Data structure:', data.value)
       return []
     }
-    
-    console.log('Found navigation links:', navLinks)
     
     // Map the links to a consistent format
     return navLinks.map(link => {
@@ -70,7 +61,7 @@ export function useGlobal() {
       // Fall back to other formats if needed
       return {
         text: link.text || link.Text || link.label || link.title || 'Link',
-        url: link.url || link.Slug ? `/${link.Slug}` : link.href || link.path || '/',
+        url: link.url || (link.Slug ? `/${link.Slug}` : link.href || link.path || '/'),
         isExternal: link.isExternal || link.external || false
       }
     })
@@ -103,8 +94,7 @@ export function useGlobal() {
     siteInfo,
     footer,
     loading,
-    error,
-    dataStructure // Debugging helper
+    error
   }
   
   // Provide the global data
