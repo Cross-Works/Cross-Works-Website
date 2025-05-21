@@ -19,9 +19,7 @@
       ]
     },
     "Caption": {
-      "type": "component",
-      "repeatable": false,
-      "component": "text.simple-text-line"
+      "type": "string"
     }
   }
 }

@@ -22,9 +22,23 @@ export interface BlocksCardBlock extends Struct.ComponentSchema {
     icon: 'apps';
   };
   attributes: {
-    Content: Schema.Attribute.Component<'blocks.text-block', false>;
+    Description: Schema.Attribute.Text;
+    Heading: Schema.Attribute.String;
     Link: Schema.Attribute.Component<'utils.link', false>;
     Thumbnail: Schema.Attribute.Component<'media.image', false>;
+  };
+}
+
+export interface BlocksCardsGridBlock extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_cards_grid_blocks';
+  info: {
+    description: '';
+    displayName: 'Cards Grid Block';
+    icon: 'apps';
+  };
+  attributes: {
+    Card: Schema.Attribute.Component<'blocks.card-block', true>;
+    Title: Schema.Attribute.String;
   };
 }
 
@@ -74,7 +88,7 @@ export interface MediaImage extends Struct.ComponentSchema {
     icon: 'picture';
   };
   attributes: {
-    Caption: Schema.Attribute.Component<'text.simple-text-line', false>;
+    Caption: Schema.Attribute.String;
     Image: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
   };
 }
@@ -341,9 +355,9 @@ export interface UtilsTable extends Struct.ComponentSchema {
     icon: 'bulletList';
   };
   attributes: {
-    Description: Schema.Attribute.Component<'text.simple-text-line', false>;
-    Foot: Schema.Attribute.Component<'text.simple-text-line', false>;
-    Heading: Schema.Attribute.Component<'text.simple-text-line', false>;
+    Description: Schema.Attribute.Text;
+    Foot: Schema.Attribute.String;
+    Heading: Schema.Attribute.String;
   };
 }
 
@@ -352,6 +366,7 @@ declare module '@strapi/strapi' {
     export interface ComponentSchemas {
       'blocks.button-block': BlocksButtonBlock;
       'blocks.card-block': BlocksCardBlock;
+      'blocks.cards-grid-block': BlocksCardsGridBlock;
       'blocks.table-block': BlocksTableBlock;
       'blocks.text-and-image-block': BlocksTextAndImageBlock;
       'blocks.text-block': BlocksTextBlock;

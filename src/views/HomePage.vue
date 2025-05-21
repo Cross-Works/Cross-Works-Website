@@ -115,19 +115,6 @@ onBeforeUnmount(() => {
   @extend %template-page;
 }
 
-// Page wrapper for push effect
-.page-wrapper {
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  
-  &.push-right {
-    transform: translateX(5%);
-  }
-  
-  &.push-left {
-    transform: translateX(-5%);
-  }
-}
-
 
 .main-content{
   @extend %template-container;

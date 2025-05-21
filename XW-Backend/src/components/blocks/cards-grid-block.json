@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_blocks_cards_grid_blocks",
+  "info": {
+    "displayName": "Cards Grid Block",
+    "icon": "apps",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Card": {
+      "type": "component",
+      "repeatable": true,
+      "component": "blocks.card-block"
+    },
+    "Title": {
+      "type": "string"
+    }
+  }
+}

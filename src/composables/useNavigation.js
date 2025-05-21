@@ -3,10 +3,9 @@ import { useFetch } from './useFetch'
 
 /**
  * Composable to fetch and manage navigation links
- * Supports both the internal links structure (Text/Slug) and standard links
  */
 export function useNavigation() {
-  // Fetch navigation data from Strapi using v5 populate syntax
+  
   const { data, loading, error } = useFetch('/api/global?populate[Navigation][populate][Link]=*')
   
   /**

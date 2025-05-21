@@ -10,5 +10,11 @@
   "options": {
     "draftAndPublish": true
   },
-  "attributes": {}
+  "attributes": {
+    "Cards": {
+      "type": "component",
+      "repeatable": false,
+      "component": "blocks.cards-grid-block"
+    }
+  }
 }
