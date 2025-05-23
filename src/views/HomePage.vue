@@ -23,37 +23,77 @@
         </section>
 
         <!-- Featured image section -->
-        <section class="featured-image">
-          <div class="placeholder-img"></div>
+        <section class="featured-image" v-if="strapiStore.featuredMedia">
+          <img 
+            v-if="strapiStore.featuredMedia.url" 
+            :src="strapiStore.featuredMedia.url" 
+            :alt="strapiStore.featuredMedia.alt"
+            class="featured-img"
+          />
+          <div v-else class="placeholder-img">Featured Image</div>
+        </section>
+        <section class="featured-image" v-else>
+          <div class="placeholder-img">Featured Image</div>
         </section>
 
-        <!-- What we do section -->
+        <!-- What we do section - Dynamic from Strapi -->
         <section class="what-we-do">
-          <h2>What we do</h2>
-          <div class="services-grid">
-            <div class="service-card">
-              <div class="placeholder-img">
-                <p>Masterplanning</p>
+          <div v-if="strapiStore.loading.homepage" class="loading">Loading content...</div>
+          <div v-else-if="strapiStore.errors.homepage" class="error">Error loading content</div>
+          <div v-else>
+            <h2>{{ strapiStore.homepageCardsTitle }}</h2>
+            <div v-if="strapiStore.homepageCards && strapiStore.homepageCards.length" class="services-grid">
+              <div v-for="card in strapiStore.homepageCards" :key="card.id" class="service-card">
+                <div class="card-image">
+                  <img 
+                    v-if="card.thumbnail" 
+                    :src="card.thumbnail" 
+                    :alt="card.heading"
+                    class="thumbnail"
+                  />
+                  <div v-else class="placeholder-img">
+                    <p>{{ card.heading }}</p>
+                  </div>
+                </div>
+                <div class="card-content">
+                  <h3>{{ card.heading }}</h3>
+                  <p v-if="card.description" class="description">{{ card.description }}</p>
+                  <router-link 
+                    v-if="card.link.url && card.link.text" 
+                    :to="card.link.url" 
+                    class="card-link"
+                  >
+                    {{ card.link.text }}
+                  </router-link>
+                </div>
               </div>
-              <h3>Masterplanning & Urban Design</h3>
             </div>
-            <div class="service-card">
-              <div class="placeholder-img">
-                <p>Software Engineering</p>
+            <!-- Fallback to static content if no cards from Strapi -->
+            <div v-else class="services-grid">
+              <div class="service-card">
+                <div class="placeholder-img">
+                  <p>Masterplanning</p>
+                </div>
+                <h3>Masterplanning & Urban Design</h3>
               </div>
-              <h3>Software Engineering</h3>
-            </div>
-            <div class="service-card">
-              <div class="placeholder-img">
-                <p>Andijan Masterplan</p>
+              <div class="service-card">
+                <div class="placeholder-img">
+                  <p>Software Engineering</p>
+                </div>
+                <h3>Software Engineering</h3>
               </div>
-              <h3>Andijan Masterplan</h3>
-            </div>
-            <div class="service-card">
-              <div class="placeholder-img">
-                <p>Digital Twin</p>
+              <div class="service-card">
+                <div class="placeholder-img">
+                  <p>Andijan Masterplan</p>
+                </div>
+                <h3>Andijan Masterplan</h3>
               </div>
-              <h3>Digital Twin</h3>
+              <div class="service-card">
+                <div class="placeholder-img">
+                  <p>Digital Twin</p>
+                </div>
+                <h3>Digital Twin</h3>
+              </div>
             </div>
           </div>
         </section>
@@ -88,17 +128,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { onMounted, onBeforeUnmount } from 'vue'
 import useTheme from '../composables/useTheme'
-import PlaceholderImg from '../components/Placeholders/PlaceholderImg.vue'
+import { useStrapiStore } from '../stores/strapi'
 
 const { setTheme } = useTheme()
 
-
+// Get the Strapi store
+const strapiStore = useStrapiStore()
 
 // Lifecycle hooks for event handling
-onMounted(() => {
+onMounted(async () => {
   setTheme('xw-white')
+  
+  // Initialize homepage data if needed
+  if (!strapiStore.homepageData) {
+    await strapiStore.fetchHomepageData()
+  }
 })
 
 onBeforeUnmount(() => {
@@ -238,6 +284,25 @@ onBeforeUnmount(() => {
     width: 100%;
     height: 400px;
   }
+  
+  .featured-img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+}
+
+// Loading and error states
+.loading, .error {
+  text-align: center;
+  padding: $spacing-xl;
+  font-size: 18px;
+  color: $xw-teal-medium;
+}
+
+.error {
+  color: #e74c3c;
 }
 
 // What we do section
@@ -268,6 +333,50 @@ onBeforeUnmount(() => {
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
       }
       
+      .card-image {
+        position: relative;
+        height: 240px;
+        
+        .thumbnail {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+      
+      .card-content {
+        padding: $spacing-lg;
+        
+        h3 {
+          margin: 0 0 $spacing-sm 0;
+          font-size: 18px;
+          color: $xw-black;
+          @extend %h3;
+        }
+        
+        .description {
+          margin: $spacing-sm 0;
+          font-size: 14px;
+          color: $xw-black;
+          opacity: 0.8;
+          line-height: 1.4;
+        }
+        
+        .card-link {
+          display: inline-block;
+          margin-top: $spacing-sm;
+          color: $xw-teal-medium;
+          text-decoration: none;
+          font-weight: 500;
+          transition: color 0.2s;
+          
+          &:hover {
+            color: $xw-teal-dark;
+          }
+        }
+      }
+      
+      // Legacy support for old structure
       h3 {
         padding: $spacing-lg;
         margin: 0;

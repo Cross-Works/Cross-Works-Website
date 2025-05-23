@@ -1,6 +1,7 @@
 import './assets/scss/main.scss'
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import { createPinia } from 'pinia'
 import App from './App.vue'
 
 // Import your routes
@@ -12,7 +13,11 @@ const router = createRouter({
   routes
 })
 
+// Create Pinia instance
+const pinia = createPinia()
+
 // Create and mount the Vue application
 const app = createApp(App)
 app.use(router)
+app.use(pinia)
 app.mount('#app')

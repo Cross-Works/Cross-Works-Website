@@ -1,4 +1,4 @@
-import { currentTheme, setAppTheme } from '../store/themeState'
+import { useThemeStore } from '../stores/theme'
 
 /**
  * Composable for accessing and changing themes
@@ -6,16 +6,18 @@ import { currentTheme, setAppTheme } from '../store/themeState'
  * @returns {Object} Theme utilities
  */
 export default function useTheme() {
+  const themeStore = useThemeStore()
+  
   /**
    * Set the current theme
    * @param {string} themeName - Theme name without the 'theme-' prefix (e.g., 'xw-white')
    */
   function setTheme(themeName) {
-    setAppTheme(themeName)
+    themeStore.setAppTheme(themeName)
   }
   
   return {
-    currentTheme,
+    currentTheme: themeStore.currentTheme,
     setTheme
   }
 } 

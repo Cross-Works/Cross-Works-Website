@@ -1,13 +1,13 @@
 {
   "collectionName": "components_media_images",
   "info": {
-    "displayName": "Single Image",
+    "displayName": "Single",
     "icon": "picture",
     "description": ""
   },
   "options": {},
   "attributes": {
-    "Image": {
+    "Asset": {
       "type": "media",
       "multiple": false,
       "required": false,

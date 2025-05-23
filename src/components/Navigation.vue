@@ -1,16 +1,16 @@
 <template>
   <nav>
     <ul>
-      <template v-if="links && links.length">
-        <li v-for="(link, index) in links" :key="index">
+      <template v-if="strapiStore.navigation && strapiStore.navigation.length">
+        <li v-for="(link, index) in strapiStore.navigation" :key="index">
           <a v-if="link.isExternal" :href="link.url" target="_blank" rel="noopener">{{ link.text }}</a>
           <router-link v-else :to="link.url">{{ link.text }}</router-link>
         </li>
       </template>
-      <template v-else-if="loading">
+      <template v-else-if="strapiStore.loading.global">
         <li>Loading navigation...</li>
       </template>
-      <template v-else-if="error">
+      <template v-else-if="strapiStore.errors.global">
         <li>Error loading navigation</li>
       </template>
       <template v-else>
@@ -24,17 +24,17 @@
 </template>
 
 <script setup>
-import { useNavigation } from '../composables/useNavigation'
+import { useStrapiStore } from '../stores/strapi'
 import { onMounted } from 'vue'
 
-// Get navigation links using our specialized composable
-const { links, loading, error, rawData } = useNavigation()
+// Get the Strapi store
+const strapiStore = useStrapiStore()
 
-// Debugging on mount
-onMounted(() => {
-  console.log('Navigation component mounted')
-  console.log('Links available:', links.value)
-  console.log('Raw data:', rawData.value)
+// Initialize data if needed
+onMounted(async () => {
+  if (!strapiStore.globalData) {
+    await strapiStore.fetchGlobalData()
+  }
 })
 </script>
 

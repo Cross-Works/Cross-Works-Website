@@ -84,19 +84,20 @@ export interface MediaImage extends Struct.ComponentSchema {
   collectionName: 'components_media_images';
   info: {
     description: '';
-    displayName: 'Single Image';
+    displayName: 'Single';
     icon: 'picture';
   };
   attributes: {
+    Asset: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     Caption: Schema.Attribute.String;
-    Image: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
   };
 }
 
 export interface MediaMultipleImages extends Struct.ComponentSchema {
   collectionName: 'components_media_multiple_images';
   info: {
-    displayName: 'Multiple Images';
+    description: '';
+    displayName: 'Multiple';
     icon: 'picture';
   };
   attributes: {

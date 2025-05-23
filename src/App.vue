@@ -2,13 +2,18 @@
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import PanelCities from './components/Layout/PanelCities.vue'
 import PanelTech from './components/Layout/PanelTech.vue'
-import { currentTheme } from './store/themeState'
+import { useThemeStore } from './stores/theme'
 import NavigationMobile from './components/NavigationMobile.vue'
 import Header from './components/Layout/Header.vue'
 import Footer from './components/Layout/Footer.vue'
-import { useGlobal } from './composables/useGlobal'
+import { useStrapiStore } from './stores/strapi'
 
-const globalData = useGlobal()
+// Initialize stores
+const themeStore = useThemeStore()
+const strapiStore = useStrapiStore()
+
+// Get current theme from store
+const { currentTheme } = themeStore
 
 const activePanelSide = ref<null | 'left' | 'right'>(null)
 const dragSide = ref<null | 'left' | 'right'>(null)
@@ -185,6 +190,9 @@ onMounted(() => {
   document.addEventListener('mouseleave', handleMouseLeave)
   window.addEventListener('resize', handleResize, { passive: true })
   checkMobile()
+  
+  // Initialize Strapi data globally
+  strapiStore.initialize()
 })
 
 onBeforeUnmount(() => {
@@ -208,7 +216,10 @@ const handleMobilePanel = (side: 'left' | 'right') => {
       class="side-panel left"
       :class="{ active: activePanelSide === 'left', dragging: dragSide === 'left', preview: showLeftPreview() }"
     >
-      <div class="panel-tab" @pointerdown="e => handlePointerStart(e, 'left')"><span>Cities</span></div>
+      <div class="panel-tab" @pointerdown="e => handlePointerStart(e, 'left')">
+        <span>Cities</span>
+      
+      </div>
       <div class="panel-content"><button class="close-btn" @click="closePanels">×</button><PanelCities /></div>
     </div>
 
@@ -349,6 +360,20 @@ const handleMobilePanel = (side: 'left' | 'right') => {
       span {
         transform: rotate(180deg);
         user-select: none;
+      }
+
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 70%;
+        width: 5px;
+        height: 50px;
+        background-color: pink;
+ 
+        transform: translateY(-50%);
+        border-radius: 3px;
       }
     }
     

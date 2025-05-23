@@ -64,8 +64,8 @@
         <div class="mobile-menu" :class="{ 'active': menuOpen }">
             <nav>
                 <ul>
-                    <template v-if="links && links.length">
-                        <li v-for="(link, index) in links" :key="index">
+                    <template v-if="strapiStore.navigation && strapiStore.navigation.length">
+                        <li v-for="(link, index) in strapiStore.navigation" :key="index">
                             <a v-if="link.isExternal" :href="link.url" target="_blank" rel="noopener" @click="$emit('toggleMenu')">{{ link.text }}</a>
                             <router-link v-else :to="link.url" @click="$emit('toggleMenu')">{{ link.text }}</router-link>
                         </li>
@@ -84,8 +84,8 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
-import { useNavigation } from '../composables/useNavigation';
+import { defineProps, defineEmits, onMounted } from 'vue';
+import { useStrapiStore } from '../stores/strapi';
 
 const props = defineProps({
     menuOpen: {
@@ -100,8 +100,15 @@ const props = defineProps({
 
 defineEmits(['toggleMenu', 'togglePanel', 'closePanels']);
 
-// Get navigation links using our specialized composable
-const { links } = useNavigation();
+// Get the Strapi store
+const strapiStore = useStrapiStore()
+
+// Initialize data if needed
+onMounted(async () => {
+  if (!strapiStore.globalData) {
+    await strapiStore.fetchGlobalData()
+  }
+})
 </script>
 
 <style lang="scss" scoped>

@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2025-05-21T16:56:58.259Z"
+    "x-generation-date": "2025-05-23T07:46:57.936Z"
   },
   "x-strapi-config": {
     "plugins": [
@@ -3917,7 +3917,7 @@
           "id": {
             "type": "number"
           },
-          "Image": {
+          "Asset": {
             "type": "object",
             "properties": {
               "id": {
@@ -5777,6 +5777,9 @@
               "Cards": {
                 "$ref": "#/components/schemas/BlocksCardsGridBlockComponent"
               },
+              "Video": {
+                "$ref": "#/components/schemas/MediaImageComponent"
+              },
               "locale": {
                 "type": "string"
               },
@@ -5845,6 +5848,9 @@
           "Cards": {
             "$ref": "#/components/schemas/BlocksCardsGridBlockComponent"
           },
+          "Video": {
+            "$ref": "#/components/schemas/MediaImageComponent"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -5895,6 +5901,9 @@
                 },
                 "Cards": {
                   "$ref": "#/components/schemas/BlocksCardsGridBlockComponent"
+                },
+                "Video": {
+                  "$ref": "#/components/schemas/MediaImageComponent"
                 },
                 "createdAt": {
                   "type": "string",

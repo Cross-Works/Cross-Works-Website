@@ -10,7 +10,7 @@
           id="endpoint" 
           v-model="apiEndpoint" 
           class="input" 
-          placeholder="/api/global?populate[Navigation][populate][Link]=*"
+          placeholder="/api/homepage?populate=*"
         />
         <button @click="fetchApi" class="button" :disabled="apiLoading">
           {{ apiLoading ? 'Loading...' : 'Fetch' }}
@@ -31,32 +31,50 @@
     
     <div class="navigation-section">
       <h2>Navigation Links</h2>
-      <div v-if="navLoading">Loading navigation...</div>
-      <div v-else-if="navError">Error loading navigation: {{ navError }}</div>
+      <div v-if="strapiStore.loading.global">Loading navigation...</div>
+      <div v-else-if="strapiStore.errors.global">Error loading navigation: {{ strapiStore.errors.global }}</div>
       <div v-else>
         <h3>Processed Navigation Links</h3>
-        <pre>{{ JSON.stringify(navLinks, null, 2) }}</pre>
+        <pre>{{ JSON.stringify(strapiStore.navigation, null, 2) }}</pre>
         
-        <h3>Raw Navigation Data</h3>
-        <pre>{{ JSON.stringify(navRawData.value, null, 2) }}</pre>
+        <h3>Raw Global Data</h3>
+        <pre>{{ JSON.stringify(strapiStore.globalData, null, 2) }}</pre>
       </div>
     </div>
     
     <hr>
     
+    <div class="homepage-section">
+      <h2>Homepage Data</h2>
+      <div v-if="strapiStore.loading.homepage">Loading homepage...</div>
+      <div v-else-if="strapiStore.errors.homepage">Error loading homepage: {{ strapiStore.errors.homepage }}</div>
+      <div v-else>
+        <h3>Processed Cards</h3>
+        <pre>{{ JSON.stringify(strapiStore.homepageCards, null, 2) }}</pre>
+        
+        <h3>Cards Title</h3>
+        <pre>{{ JSON.stringify(strapiStore.homepageCardsTitle, null, 2) }}</pre>
+        
+        <h3>Featured Media</h3>
+        <pre>{{ JSON.stringify(strapiStore.featuredMedia, null, 2) }}</pre>
+        
+        <h3>Raw Homepage Data</h3>
+        <pre>{{ JSON.stringify(strapiStore.homepageData, null, 2) }}</pre>
+      </div>
+    </div>
+
+    <hr>
+    
     <div class="global-data">
-      <h2>Global Data Provider</h2>
-      <div v-if="loading">Loading...</div>
-      <div v-else-if="error">Error: {{ error }}</div>
+      <h2>Site Info & Other Data</h2>
+      <div v-if="strapiStore.loading.global">Loading...</div>
+      <div v-else-if="strapiStore.errors.global">Error: {{ strapiStore.errors.global }}</div>
       <div v-else class="debug-content">
-        <h3>Navigation Links (from Global Provider)</h3>
-        <pre>{{ JSON.stringify(navigation, null, 2) }}</pre>
-        
         <h3>Site Info</h3>
-        <pre>{{ JSON.stringify(siteInfo, null, 2) }}</pre>
+        <pre>{{ JSON.stringify(strapiStore.siteInfo, null, 2) }}</pre>
         
-        <h3>Raw Data Structure</h3>
-        <pre>{{ JSON.stringify(dataStructure, null, 2) }}</pre>
+        <h3>Footer Data</h3>
+        <pre>{{ JSON.stringify(strapiStore.footer, null, 2) }}</pre>
       </div>
     </div>
   </div>
@@ -64,19 +82,18 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useGlobalData } from '../composables/useGlobal'
+import { useStrapiStore } from '../stores/strapi'
 import { useStrapiDirect } from '../composables/useStrapiDirect'
-import { useNavigation } from '../composables/useNavigation'
 
-// Get all global data including debug data
-const { navigation, siteInfo, loading, error, dataStructure } = useGlobalData()
+// Get the Strapi store
+const strapiStore = useStrapiStore()
 
 // Direct API testing
-const apiEndpoint = ref('/api/global?populate[Navigation][populate][Link]=*')
+const apiEndpoint = ref('/api/homepage?populate=*')
 const { data: apiData, error: apiError, loading: apiLoading, refetch: fetchApi } = useStrapiDirect(apiEndpoint.value)
 
-// Get navigation data from dedicated composable
-const { links: navLinks, loading: navLoading, error: navError, rawData: navRawData } = useNavigation()
+// Initialize store data
+strapiStore.initialize()
 
 // Update API endpoint and refetch when the endpoint changes
 function updateEndpoint() {

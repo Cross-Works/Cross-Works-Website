@@ -1,8 +1,9 @@
 {
   "collectionName": "components_media_multiple_images",
   "info": {
-    "displayName": "Multiple Images",
-    "icon": "picture"
+    "displayName": "Multiple",
+    "icon": "picture",
+    "description": ""
   },
   "options": {},
   "attributes": {
